@@ -1,83 +1,79 @@
-# 🚀 Meta-Learning System for Crypto Trading Bot v5.0
+# Meta-Learning System for Crypto Trading v5.0
 
-[![Context7](https://img.shields.io/badge/Context7-Enterprise-blue)](https://context7.io)
 [![Python](https://img.shields.io/badge/Python-3.9+-green)](https://python.org)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-red)](https://pytorch.org)
 [![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
 
-Comprehensive Meta-Learning System для быстрой адаптации к новым криптовалютным рынкам и торговым стратегиям. Система реализует современные алгоритмы мета-обучения с поддержкой Context7 enterprise patterns.
+Comprehensive Meta-Learning System for rapid adaptation to new cryptocurrency markets and trading strategies. The system implements modern meta-learning algorithms with enterprise pattern support.
 
-## 🎯 Ключевые возможности
+## Key Features
 
-### 🧠 Алгоритмы мета-обучения
+### Meta-Learning Algorithms
 
-- **MAML** (Model-Agnostic Meta-Learning) - универсальное мета-обучение
-- **Reptile** - first-order MAML для быстрой сходимости
-- **Meta-SGD** - обучаемые learning rates для каждого параметра
-- **Prototypical Networks** - prototype-based few-shot learning
-- **Matching Networks** - attention-based few-shot learning
+- **MAML** (Model-Agnostic Meta-Learning) - Universal meta-learning
+- **Reptile** - First-order MAML for fast convergence
+- **Meta-SGD** - Learnable learning rates for each parameter
+- **Prototypical Networks** - Prototype-based few-shot learning
+- **Matching Networks** - Attention-based few-shot learning
 
-### 📊 Crypto-специфичные задачи
+### Crypto-Specific Tasks
 
-- **Price Direction Prediction** - предсказание направления цены
-- **Portfolio Optimization** - оптимизация криптовалютного портфеля
-- **Market Regime Classification** - классификация рыночных режимов
-- **Arbitrage Opportunity Detection** - поиск арбитражных возможностей
-- **Risk Assessment** - оценка рисков торговых стратегий
+- **Price Direction Prediction** - Predicting price direction
+- **Portfolio Optimization** - Cryptocurrency portfolio optimization
+- **Market Regime Classification** - Market regime classification
+- **Arbitrage Opportunity Detection** - Finding arbitrage opportunities
+- **Risk Assessment** - Trading strategy risk assessment
 
-### ⚡ Production-ready функции
+### Production-Ready Features
 
-- **Advanced Task Sampling** - эффективное семплирование с кэшированием
-- **Meta-Optimization Framework** - адаптивные оптимизаторы
-- **Comprehensive Evaluation** - статистически значимое тестирование
-- **Real-time Adaptation** - быстрая адаптация к новым активам
-- **Performance Monitoring** - детальный мониторинг производительности
+- **Advanced Task Sampling** - Efficient sampling with caching
+- **Meta-Optimization Framework** - Adaptive optimizers
+- **Comprehensive Evaluation** - Statistically significant testing
+- **Real-time Adaptation** - Fast adaptation to new assets
+- **Performance Monitoring** - Detailed performance monitoring
 
-## 🏗️ Архитектура системы
+## System Architecture
 
 ```
-
 ml-meta-learning/
-├── 🧠 src/algorithms/          # Алгоритмы мета-обучения
-│   ├── maml.py                 # MAML implementation
-│   ├── reptile.py              # Reptile algorithm
-│   ├── meta_sgd.py             # Meta-SGD with learnable LRs
-│   ├── proto_net.py            # Prototypical Networks
-│   └── matching_net.py         # Matching Networks
-├── 📋 src/tasks/               # Система задач
-│   ├── task_distribution.py    # Распределение задач
-│   ├── task_sampler.py         # Интеллектуальное семплирование
-│   └── crypto_tasks.py         # Crypto-специфичные задачи
-├── ⚙️ src/optimization/        # Фреймворк оптимизации
-│   ├── meta_optimizer.py       # Мета-оптимизаторы
-│   └── inner_loop.py           # Inner loop optimization
-├── 📈 src/evaluation/          # Система оценки
-│   └── few_shot_evaluator.py   # Few-shot evaluation
-├── 🛠️ src/utils/              # Утилиты
-│   ├── gradient_utils.py       # Работа с градиентами
-│   └── meta_utils.py           # Meta-learning утилиты
-└── 🧪 tests/                  # Comprehensive tests
-    └── test_meta_learning.py   # Полное тестирование
-
+├── src/algorithms/          # Meta-learning algorithms
+│   ├── maml.py              # MAML implementation
+│   ├── reptile.py           # Reptile algorithm
+│   ├── meta_sgd.py          # Meta-SGD with learnable LRs
+│   ├── proto_net.py         # Prototypical Networks
+│   └── matching_net.py      # Matching Networks
+├── src/tasks/               # Task system
+│   ├── task_distribution.py # Task distribution
+│   ├── task_sampler.py      # Intelligent sampling
+│   └── crypto_tasks.py      # Crypto-specific tasks
+├── src/optimization/        # Optimization framework
+│   ├── meta_optimizer.py    # Meta-optimizers
+│   └── inner_loop.py        # Inner loop optimization
+├── src/evaluation/          # Evaluation system
+│   └── few_shot_evaluator.py # Few-shot evaluation
+├── src/utils/               # Utilities
+│   ├── gradient_utils.py    # Gradient utilities
+│   └── meta_utils.py        # Meta-learning utilities
+└── tests/                   # Comprehensive tests
+    └── test_meta_learning.py # Full testing
 ```
 
-## 🚀 Быстрый старт
+## Quick Start
 
-### Установка
+### Installation
 
 ```bash
-# Клонируйте репозиторий
+# Navigate to package directory
 cd packages/ml-meta-learning
 
-# Установите зависимости
+# Install dependencies
 pip install -e .
 
-# Для разработки
+# For development
 pip install -e ".[dev]"
-
 ```
 
-### Базовый пример использования
+### Basic Usage Example
 
 ```python
 import torch
@@ -85,7 +81,7 @@ import torch.nn as nn
 from ml_meta_learning.algorithms.maml import MAML, MAMLConfig
 from ml_meta_learning.tasks.crypto_tasks import CryptoTaskDistribution, CryptoTaskConfig
 
-# 1. Создаем модель
+# 1. Create model
 class TradingModel(nn.Module):
     def __init__(self, input_dim=50, hidden_dim=128, output_dim=3):
         super().__init__()
@@ -100,7 +96,7 @@ class TradingModel(nn.Module):
     def forward(self, x):
         return self.layers(x)
 
-# 2. Настраиваем MAML
+# 2. Configure MAML
 model = TradingModel()
 config = MAMLConfig(
     inner_lr=0.01,
@@ -109,7 +105,7 @@ config = MAMLConfig(
 )
 maml = MAML(model, config)
 
-# 3. Создаем crypto задачи
+# 3. Create crypto tasks
 task_config = CryptoTaskConfig(
     task_type="classification",
     trading_pairs=["BTCUSDT", "ETHUSDT", "ADAUSDT"],
@@ -119,18 +115,18 @@ task_config = CryptoTaskConfig(
 )
 task_distribution = CryptoTaskDistribution(task_config)
 
-# 4. Мета-обучение
+# 4. Meta-training
 for episode in range(1000):
-    # Семплируем batch задач
+    # Sample task batch
     task_batch = task_distribution.sample_batch(batch_size=8)
 
-    # Один шаг мета-обучения
+    # One meta-training step
     metrics = maml.meta_train_step(task_batch)
 
     if episode % 100 == 0:
         print(f"Episode {episode}: Meta-loss = {metrics['meta_loss']:.4f}")
 
-# 5. Быстрая адаптация к новой задаче
+# 5. Fast adaptation to new task
 new_task = task_distribution.sample_task()
 adapted_model = maml.few_shot_adapt(
     new_task['support_data'],
@@ -138,20 +134,19 @@ adapted_model = maml.few_shot_adapt(
     num_adaptation_steps=5
 )
 
-# Используем адаптированную модель для предсказаний
+# Use adapted model for predictions
 with torch.no_grad():
     predictions = adapted_model(new_task['query_data'])
-
 ```
 
-## 📚 Продвинутые примеры
+## Advanced Examples
 
-### Portfolio Optimization с Meta-SGD
+### Portfolio Optimization with Meta-SGD
 
 ```python
 from ml_meta_learning.algorithms.meta_sgd import MetaSGD, MetaSGDConfig
 
-# Конфигурация Meta-SGD для портфельной оптимизации
+# Meta-SGD configuration for portfolio optimization
 config = MetaSGDConfig(
     meta_lr=0.001,
     num_inner_steps=10,
@@ -161,22 +156,21 @@ config = MetaSGDConfig(
 
 meta_sgd = MetaSGD(model, config)
 
-# Создаем задачи портфельной оптимизации
+# Create portfolio optimization tasks
 task_config = CryptoTaskConfig(
     task_type="portfolio_optimization",
     include_portfolio_tasks=True,
     max_assets_in_portfolio=8,
     rebalancing_frequencies=["daily", "weekly"]
 )
-
 ```
 
-### Prototypical Networks для классификации рыночных режимов
+### Prototypical Networks for Market Regime Classification
 
 ```python
 from ml_meta_learning.algorithms.proto_net import PrototypicalNetworks, ProtoNetConfig
 
-# Конфигурация Prototypical Networks
+# Prototypical Networks configuration
 config = ProtoNetConfig(
     embedding_dim=128,
     num_classes=4,  # Bull, Bear, Sideways, High Volatility
@@ -186,11 +180,10 @@ config = ProtoNetConfig(
 
 protonet = PrototypicalNetworks(input_dim=50, config=config)
 
-# Обучение
+# Training
 for episode in range(500):
     task = task_distribution.sample_task()
     metrics = protonet.train_step([task])
-
 ```
 
 ### Comprehensive Evaluation Pipeline
@@ -198,7 +191,7 @@ for episode in range(500):
 ```python
 from ml_meta_learning.evaluation.few_shot_evaluator import FewShotBenchmark, EvaluationConfig
 
-# Конфигурация оценки
+# Evaluation configuration
 eval_config = EvaluationConfig(
     num_episodes=100,
     num_runs=5,
@@ -207,10 +200,10 @@ eval_config = EvaluationConfig(
     include_trading_metrics=True
 )
 
-# Создаем benchmark
+# Create benchmark
 benchmark = FewShotBenchmark(eval_config)
 
-# Сравниваем модели
+# Compare models
 models = {
     'MAML': maml,
     'Meta-SGD': meta_sgd,
@@ -220,26 +213,25 @@ models = {
 def task_generator():
     return task_distribution.sample_task()
 
-# Запускаем benchmark
+# Run benchmark
 results = benchmark.run_benchmark(
     models,
     task_generator,
     task_type="classification"
 )
 
-print("📊 Benchmark Results:")
+print("Benchmark Results:")
 for model_name, model_results in results['individual_results'].items():
     avg_accuracy = model_results['aggregated_results']['5shot_3way_5adapt']['accuracy']['mean']
     print(f"{model_name}: {avg_accuracy:.3f} ± {model_results['aggregated_results']['5shot_3way_5adapt']['accuracy']['std']:.3f}")
-
 ```
 
-### Advanced Task Sampling с кэшированием
+### Advanced Task Sampling with Caching
 
 ```python
 from ml_meta_learning.tasks.task_sampler import TaskSampler, SamplerConfig
 
-# Конфигурация sampler с оптимизациями
+# Sampler configuration with optimizations
 sampler_config = SamplerConfig(
     batch_size=16,
     prefetch_factor=4,
@@ -251,21 +243,20 @@ sampler_config = SamplerConfig(
     min_quality_score=0.7
 )
 
-# Создаем интеллектуальный sampler
+# Create intelligent sampler
 with TaskSampler(task_distribution, sampler_config) as sampler:
     for batch in range(100):
         task_batch = sampler.sample_batch()
-        # Обучение с оптимизированным семплированием
+        # Train with optimized sampling
         metrics = maml.meta_train_step(task_batch)
-
 ```
 
-## 🔧 Context7 Enterprise Patterns
+## Enterprise Patterns
 
 ### Scalable Meta-Learning Architecture
 
 ```python
-# Адаптивный мета-оптимизатор
+# Adaptive meta-optimizer
 from ml_meta_learning.optimization.meta_optimizer import AdaptiveMetaOptimizer, MetaOptimizerConfig
 
 config = MetaOptimizerConfig(
@@ -276,7 +267,6 @@ config = MetaOptimizerConfig(
 )
 
 adaptive_optimizer = AdaptiveMetaOptimizer(model, config)
-
 ```
 
 ### Production Monitoring & Observability
@@ -287,7 +277,7 @@ from ml_meta_learning.utils.meta_utils import MetaLearningMetrics, Visualizer
 # Comprehensive metrics tracking
 metrics = MetaLearningMetrics()
 
-# Отслеживание адаптации
+# Track adaptation
 adaptation_metrics = metrics.compute_adaptation_metrics(
     initial_performance=0.6,
     final_performance=0.85,
@@ -295,10 +285,9 @@ adaptation_metrics = metrics.compute_adaptation_metrics(
     adaptation_time=2.3
 )
 
-# Visualization для анализа
+# Visualization for analysis
 visualizer = Visualizer(save_dir="./plots")
 visualizer.plot_training_progress(metrics.metrics_history)
-
 ```
 
 ### High-Performance Gradient Management
@@ -309,21 +298,20 @@ from ml_meta_learning.utils.gradient_utils import GradientManager, HigherOrderGr
 # Advanced gradient utilities
 gradient_manager = GradientManager()
 
-# Анализ градиентного потока
+# Analyze gradient flow
 gradient_flow = gradient_manager.analyze_gradient_flow(model)
 
-# Обнаружение проблем с градиентами
+# Detect gradient problems
 problems = gradient_manager.detect_gradient_problems(model)
 
-# Higher-order gradients для MAML
+# Higher-order gradients for MAML
 hog = HigherOrderGradients()
 hessian_vector_product = hog.compute_hessian_vector_product(
     loss, model.parameters(), vector
 )
-
 ```
 
-## 📈 Performance Benchmarks
+## Performance Benchmarks
 
 ### Few-Shot Learning Performance
 
@@ -342,31 +330,30 @@ hessian_vector_product = hog.compute_hessian_vector_product(
 | Portfolio Opt   | Top-10 Crypto  | 0.156    | 0.234     | **0.267** | 0.198     |
 | Market Regime   | Multi-exchange | 0.634    | 0.789     | 0.776     | **0.812** |
 
-## 🧪 Testing & Quality Assurance
+## Testing & Quality Assurance
 
 ```bash
-# Запуск всех тестов
+# Run all tests
 pytest tests/ -v
 
-# Тесты с покрытием
+# Tests with coverage
 pytest tests/ --cov=src --cov-report=html
 
-# Интеграционные тесты
+# Integration tests
 pytest tests/test_meta_learning.py::TestIntegration -v
 
-# Performance тесты
+# Performance tests
 pytest tests/ -m "not slow" --benchmark-only
-
 ```
 
 ### Test Coverage
 
-- **Unit Tests**: 95%+ coverage всех алгоритмов
-- **Integration Tests**: End-to-end пайплайны
-- **Performance Tests**: Benchmarking и профилирование
-- **Statistical Tests**: Проверка значимости результатов
+- **Unit Tests**: 95%+ coverage of all algorithms
+- **Integration Tests**: End-to-end pipelines
+- **Performance Tests**: Benchmarking and profiling
+- **Statistical Tests**: Results significance verification
 
-## 📖 API Documentation
+## API Documentation
 
 ### Core Classes
 
@@ -378,7 +365,6 @@ class MAML:
     def meta_train_step(self, task_batch: List[Dict]) -> Dict[str, float]
     def few_shot_adapt(self, support_data, support_labels) -> nn.Module
     def meta_validate(self, validation_tasks) -> Dict[str, float]
-
 ```
 
 #### Task Distribution
@@ -389,7 +375,6 @@ class CryptoTaskDistribution:
     def sample_task(self) -> Dict[str, torch.Tensor]
     def sample_batch(self, batch_size: int) -> List[Dict]
     def get_task_difficulty(self, task_data) -> float
-
 ```
 
 #### Evaluation
@@ -399,12 +384,11 @@ class FewShotBenchmark:
     def __init__(self, config: EvaluationConfig)
     def run_benchmark(self, models, task_generator, task_type) -> Dict
     def get_statistical_significance(self) -> Dict
-
 ```
 
-## 🔬 Research & Publications
+## Research & Publications
 
-Система основана на следующих исследованиях:
+The system is based on the following research:
 
 - **MAML**: Finn et al. (2017) - Model-Agnostic Meta-Learning
 - **Reptile**: Nichol et al. (2018) - On First-Order Meta-Learning Algorithms
@@ -412,12 +396,12 @@ class FewShotBenchmark:
 - **Prototypical Networks**: Snell et al. (2017) - Prototypical Networks for Few-shot Learning
 - **Matching Networks**: Vinyals et al. (2016) - Matching Networks for One Shot Learning
 
-## 🛠️ Development & Contributing
+## Development & Contributing
 
-### Требования для разработки
+### Development Requirements
 
 ```bash
-# Установка dev зависимостей
+# Install dev dependencies
 pip install -e ".[dev,test,docs]"
 
 # Pre-commit hooks
@@ -427,22 +411,21 @@ pre-commit install
 black src/ tests/
 flake8 src/ tests/
 mypy src/
-
 ```
 
-### Архитектурные принципы
+### Architectural Principles
 
-1. **Modularity**: Каждый алгоритм - независимый модуль
-2. **Extensibility**: Легкое добавление новых алгоритмов
-3. **Performance**: Оптимизация для production нагрузок
+1. **Modularity**: Each algorithm is an independent module
+2. **Extensibility**: Easy addition of new algorithms
+3. **Performance**: Optimization for production loads
 4. **Testing**: Comprehensive test coverage
-5. **Documentation**: Подробная документация кода
+5. **Documentation**: Detailed code documentation
 
-### Добавление нового алгоритма
+### Adding a New Algorithm
 
 ```python
-# 1. Создайте новый файл в src/algorithms/
-# 2. Наследуйтесь от базового класса
+# 1. Create new file in src/algorithms/
+# 2. Inherit from base class
 from abc import ABC, abstractmethod
 
 class BaseMetaLearningAlgorithm(ABC):
@@ -452,25 +435,24 @@ class BaseMetaLearningAlgorithm(ABC):
     @abstractmethod
     def few_shot_adapt(self, support_data, support_labels): pass
 
-# 3. Реализуйте алгоритм
+# 3. Implement algorithm
 class YourAlgorithm(BaseMetaLearningAlgorithm):
     def meta_train_step(self, task_batch):
-        # Ваша реализация
+        # Your implementation
         pass
 
-# 4. Добавьте тесты
+# 4. Add tests
 class TestYourAlgorithm:
     def test_initialization(self): pass
     def test_meta_training(self): pass
-
 ```
 
-## 📊 Monitoring & Observability
+## Monitoring & Observability
 
 ### Metrics Dashboard
 
 ```python
-# Real-time мониторинг
+# Real-time monitoring
 from ml_meta_learning.utils.meta_utils import MetaLearningMetrics
 
 metrics = MetaLearningMetrics()
@@ -483,7 +465,6 @@ metrics.track_metric("meta_loss", loss_value)
 # Generate reports
 summary = metrics.get_metric_summary("adaptation_speed")
 print(f"Avg adaptation time: {summary['mean']:.2f}s")
-
 ```
 
 ### Performance Profiling
@@ -499,10 +480,9 @@ result = profiler.profile_gradient_computation(
 )
 
 summary = profiler.get_profiling_summary()
-
 ```
 
-## 🚀 Production Deployment
+## Production Deployment
 
 ### Docker Container
 
@@ -516,7 +496,6 @@ COPY src/ /app/src/
 WORKDIR /app
 
 CMD ["python", "-m", "src.training.train_maml"]
-
 ```
 
 ### Kubernetes Deployment
@@ -538,13 +517,12 @@ spec:
               nvidia.com/gpu: 1
               memory: '8Gi'
               cpu: '4'
-
 ```
 
 ### Model Serving
 
 ```python
-# FastAPI сервис для inference
+# FastAPI service for inference
 from fastapi import FastAPI
 from ml_meta_learning.algorithms.maml import MAML
 
@@ -563,16 +541,15 @@ async def predict(model_id: str, query_data: List[float]):
     # Load adapted model and predict
     predictions = adapted_model(torch.tensor(query_data))
     return {"predictions": predictions.tolist()}
-
 ```
 
-## 🔐 Security & Compliance
+## Security & Compliance
 
 ### Data Privacy
 
-- Федеративное обучение для чувствительных данных
-- Differential privacy для защиты пользователей
-- Secure aggregation протоколы
+- Federated learning for sensitive data
+- Differential privacy for user protection
+- Secure aggregation protocols
 
 ### Model Security
 
@@ -580,7 +557,7 @@ async def predict(model_id: str, query_data: List[float]):
 - Model extraction protection
 - Secure model updates
 
-## 📈 Roadmap
+## Roadmap
 
 ### v1.1 (Q1 2025)
 
@@ -598,35 +575,29 @@ async def predict(model_id: str, query_data: List[float]):
 
 ### v2.0 (Q3 2025)
 
-- [ ] Foundation models для crypto
+- [ ] Foundation models for crypto
 - [ ] Multi-agent meta-learning
 - [ ] Quantum computing support
 - [ ] Advanced risk management
 
-## 📞 Support & Community
+## Support & Community
 
 - **Documentation**: [docs.ml-framework.io/meta-learning](https://docs.ml-framework.io/meta-learning)
 - **Issues**: [GitHub Issues](https://github.com/ml-framework/meta-learning/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/ml-framework/meta-learning/discussions)
-- **Discord**: [ML-Framework Community](https://discord.gg/ml-framework)
 
-## 📄 License
+## License
 
 MIT License - see [LICENSE](LICENSE) for details.
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
-- **PyTorch Team** за excellent deep learning framework
-- **Research Community** за foundational meta-learning algorithms
-- **Crypto Community** за domain expertise и feedback
-- **Context7** за enterprise architecture patterns
+- **PyTorch Team** for excellent deep learning framework
+- **Research Community** for foundational meta-learning algorithms
+- **Crypto Community** for domain expertise and feedback
 
 ---
 
-<div align="center">
+**Built for Enterprise Meta-Learning Applications**
 
-**[⭐ Star us on GitHub](https://github.com/ml-framework/meta-learning)** • **[📖 Read the Docs](https://docs.ml-framework.io)** • **[💬 Join Discord](https://discord.gg/ml-framework)**
-
-Built with ❤️ by the **ML-Framework Team** for the **Crypto Trading Community**
-
-</div>
+_Meta-Learning system following enterprise patterns for production-ready trading applications._
