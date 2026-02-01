@@ -24,7 +24,7 @@ from ..models.meta_model import MetaModel
 
 @dataclass
 class MAMLConfig:
-    """Конфигурация для MAML алгоритма"""
+    """Конфигурация for MAML algorithm"""
     
     # Основные параметры
     inner_lr: float = 0.01  # Скорость обучения на внутреннем цикле

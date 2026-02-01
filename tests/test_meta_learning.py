@@ -2,7 +2,7 @@
 Comprehensive Tests for Meta-Learning System
 Context7 Enterprise Pattern: Production-Ready Testing
 
-Тесты для всех компонентов meta-learning системы с проверкой
+Tests for всех компонентов meta-learning системы с проверкой
 корректности алгоритмов, производительности и интеграции.
 """
 
@@ -40,7 +40,7 @@ from ..src.utils.meta_utils import MetaLearningMetrics, DataAnalyzer, Visualizer
 
 
 class SimpleTestModel(nn.Module):
-    """Простая модель для тестирования"""
+    """Simple model for testing"""
     
     def __init__(self, input_dim: int = 10, hidden_dim: int = 32, output_dim: int = 1):
         super().__init__()
@@ -65,13 +65,13 @@ class SimpleTestModel(nn.Module):
 
 @pytest.fixture
 def simple_model():
-    """Fixture для простой модели"""
+    """Fixture for простой модели"""
     return SimpleTestModel()
 
 
 @pytest.fixture
 def sample_task_data():
-    """Fixture для примера данных задачи"""
+    """Fixture for task data example"""
     return {
         'support_data': torch.randn(25, 10),  # 5 classes * 5 shots
         'support_labels': torch.randint(0, 5, (25,)),
@@ -82,14 +82,14 @@ def sample_task_data():
 
 @pytest.fixture
 def temp_dir():
-    """Fixture для временной директории"""
+    """Fixture for temporary directory"""
     temp_path = tempfile.mkdtemp()
     yield temp_path
     shutil.rmtree(temp_path)
 
 
 class TestMAML:
-    """Тесты для MAML алгоритма"""
+    """Tests for MAML алгоритма"""
     
     def test_maml_initialization(self, simple_model):
         """Тест инициализации MAML"""
@@ -123,7 +123,7 @@ class TestMAML:
         assert len(inner_losses) == config.num_inner_steps
         assert len(adapted_params) == len(model_state)
         
-        # Проверяем, что параметры изменились
+        # Verify parameters changed
         for name, original_param in model_state.items():
             assert not torch.equal(adapted_params[name], original_param)
     
@@ -156,7 +156,7 @@ class TestMAML:
         adapted_model = maml.few_shot_adapt(support_data, support_labels)
         
         assert isinstance(adapted_model, nn.Module)
-        assert adapted_model != simple_model  # Должна быть другая модель
+        assert adapted_model != simple_model  # Should be different model
     
     def test_maml_checkpoint_save_load(self, simple_model, temp_dir):
         """Тест сохранения и загрузки checkpoint MAML"""
@@ -182,7 +182,7 @@ class TestMAML:
 
 
 class TestReptile:
-    """Тесты для Reptile алгоритма"""
+    """Tests for Reptile алгоритма"""
     
     def test_reptile_initialization(self, simple_model):
         """Тест инициализации Reptile"""
@@ -211,7 +211,7 @@ class TestReptile:
         assert len(adaptation_losses) == config.num_inner_steps
         assert len(adapted_params) == len(list(simple_model.named_parameters()))
         
-        # Проверяем убывание loss
+        # Verify loss decreasing
         assert adaptation_losses[0] >= adaptation_losses[-1]
     
     def test_reptile_meta_train_step(self, simple_model, sample_task_data):
@@ -219,7 +219,7 @@ class TestReptile:
         config = ReptileConfig(num_inner_steps=2)
         reptile = Reptile(simple_model, config)
         
-        # Сохраняем исходные параметры для сравнения
+        # Save original parameters for comparison
         original_params = {}
         for name, param in simple_model.named_parameters():
             original_params[name] = param.data.clone()
@@ -231,13 +231,13 @@ class TestReptile:
         assert 'query_loss' in metrics
         assert 'query_accuracy' in metrics
         
-        # Проверяем, что параметры модели изменились
+        # Verify model parameters changed
         for name, param in simple_model.named_parameters():
             assert not torch.equal(param.data, original_params[name])
 
 
 class TestMetaSGD:
-    """Тесты для Meta-SGD алгоритма"""
+    """Tests for Meta-SGD алгоритма"""
     
     def test_meta_sgd_initialization(self, simple_model):
         """Тест инициализации Meta-SGD"""
@@ -252,7 +252,7 @@ class TestMetaSGD:
         assert meta_sgd.model == simple_model
         assert len(meta_sgd.inner_lrs) > 0
         
-        # Проверяем, что learning rates инициализированы для всех параметров
+        # Verify learning rates initialized for all parameters
         for name, param in simple_model.named_parameters():
             if param.requires_grad:
                 assert name in meta_sgd.inner_lrs
@@ -274,7 +274,7 @@ class TestMetaSGD:
         assert len(inner_losses) == config.num_inner_steps
         assert len(lr_history) > 0
         
-        # Проверяем, что learning rates использовались
+        # Verify learning rates were used
         for lr_values in lr_history.values():
             assert len(lr_values) > 0
     
@@ -295,7 +295,7 @@ class TestMetaSGD:
 
 
 class TestPrototypicalNetworks:
-    """Тесты для Prototypical Networks"""
+    """Tests for Prototypical Networks"""
     
     def test_protonet_initialization(self):
         """Тест инициализации ProtoNet"""
@@ -359,7 +359,7 @@ class TestPrototypicalNetworks:
 
 
 class TestMatchingNetworks:
-    """Тесты для Matching Networks"""
+    """Tests for Matching Networks"""
     
     def test_matching_net_initialization(self):
         """Тест инициализации MatchingNet"""
@@ -393,7 +393,7 @@ class TestMatchingNetworks:
 
 
 class TestTaskDistribution:
-    """Тесты для системы распределения задач"""
+    """Tests for системы распределения задач"""
     
     def test_crypto_task_distribution_initialization(self):
         """Тест инициализации CryptoTaskDistribution"""
@@ -439,7 +439,7 @@ class TestTaskDistribution:
 
 
 class TestTaskSampler:
-    """Тесты для Task Sampler"""
+    """Tests for Task Sampler"""
     
     def test_task_cache_basic_operations(self, temp_dir):
         """Тест базовых операций кэша задач"""
@@ -495,7 +495,7 @@ class TestTaskSampler:
 
 
 class TestMetaOptimizers:
-    """Тесты для мета-оптимизаторов"""
+    """Tests for мета-оптимизаторов"""
     
     def test_meta_optimizer_factory(self, simple_model):
         """Тест фабрики мета-оптимизаторов"""
@@ -533,10 +533,10 @@ class TestMetaOptimizers:
 
 
 class TestEvaluation:
-    """Тесты для системы оценки"""
+    """Tests for системы оценки"""
     
     def test_classification_evaluator(self, simple_model, sample_task_data):
-        """Тест evaluator для классификации"""
+        """Test evaluator for classification"""
         config = EvaluationConfig(num_episodes=5, num_runs=2)
         evaluator = ClassificationEvaluator(config)
         
@@ -609,7 +609,7 @@ class TestEvaluation:
 
 
 class TestUtilities:
-    """Тесты для утилит"""
+    """Tests for утилит"""
     
     def test_gradient_manager(self, simple_model):
         """Тест менеджера градиентов"""

@@ -23,7 +23,7 @@ from ..utils.meta_utils import MetaLearningMetrics
 
 @dataclass
 class ReptileConfig:
-    """Конфигурация для Reptile алгоритма"""
+    """Конфигурация for Reptile algorithm"""
     
     # Основные параметры
     inner_lr: float = 0.01  # Скорость обучения на задаче
