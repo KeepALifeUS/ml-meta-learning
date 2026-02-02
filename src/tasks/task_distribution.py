@@ -2,8 +2,8 @@
 Task Distribution System
 Scalable Task Management for Meta-Learning
 
-Система распределения и управления задачами для мета-обучения в контексте
-криптовалютного трейдинга. Поддерживает различные типы задач и распределений.
+System distribution and management tasks for meta-training in context
+cryptocurrency trading. Supports various types tasks and distributions.
 """
 
 import torch
@@ -21,41 +21,41 @@ from ..utils.meta_utils import MetaLearningMetrics
 
 @dataclass
 class TaskConfig:
-    """Конфигурация задачи для мета-обучения"""
+    """Configuration tasks for meta-training"""
     
-    # Основные параметры
-    num_classes: int = 5  # Количество классов (для классификации)
-    num_support: int = 5  # Примеров на класс в support set
-    num_query: int = 15   # Примеров на класс в query set
+    # Main parameters
+    num_classes: int = 5  # Number classes (for classification)
+    num_support: int = 5  # Examples on class in support set
+    num_query: int = 15   # Examples on class in query set
     
-    # Тип задачи
+    # Type tasks
     task_type: str = "classification"  # classification, regression, ranking
     
-    # Сложность задачи
+    # Complexity tasks
     difficulty_level: str = "medium"  # easy, medium, hard
     min_difficulty: float = 0.1
     max_difficulty: float = 1.0
     
-    # Временные параметры
-    time_horizon: int = 100  # Горизонт прогнозирования для временных рядов
-    sequence_length: int = 50  # Длина входной последовательности
+    # Temporal parameters
+    time_horizon: int = 100  # Horizon forecasting for temporal series
+    sequence_length: int = 50  # Length input sequences
     
-    # Маркетные параметры
+    # Market parameters
     market_conditions: List[str] = field(default_factory=lambda: ["bull", "bear", "sideways"])
-    volatility_range: Tuple[float, float] = (0.01, 0.1)  # Диапазон волатильности
+    volatility_range: Tuple[float, float] = (0.01, 0.1)  # Range volatility
     
-    # Балансировка
+    # Balancing
     class_balance: str = "balanced"  # balanced, imbalanced, natural
-    imbalance_ratio: float = 0.1  # Для несбалансированных классов
+    imbalance_ratio: float = 0.1  # For imbalanced classes
     
-    # Качество данных
-    noise_level: float = 0.05  # Уровень шума в данных
-    missing_data_ratio: float = 0.0  # Доля пропущенных данных
+    # Quality data
+    noise_level: float = 0.05  # Level noise in data
+    missing_data_ratio: float = 0.0  # Share missing data
 
 
 @dataclass
 class TaskMetadata:
-    """Метаданные задачи"""
+    """Metadata tasks"""
     
     task_id: str
     task_type: str
@@ -75,7 +75,7 @@ class TaskMetadata:
 
 class BaseTaskDistribution(ABC):
     """
-    Базовый класс для распределения задач
+    Base class for distribution tasks
     
     Abstract Task Distribution
     - Pluggable task generation
@@ -91,33 +91,33 @@ class BaseTaskDistribution(ABC):
     
     @abstractmethod
     def sample_task(self) -> Dict[str, torch.Tensor]:
-        """Семплирует одну задачу"""
+        """Samples one task"""
         pass
     
     @abstractmethod
     def sample_batch(self, batch_size: int) -> List[Dict[str, torch.Tensor]]:
-        """Семплирует batch задач"""
+        """Samples batch tasks"""
         pass
     
     @abstractmethod
     def get_task_difficulty(self, task_data: Dict[str, torch.Tensor]) -> float:
-        """Оценивает сложность задачи"""
+        """Evaluates complexity tasks"""
         pass
     
     def register_task(self, task_id: str, task_data: Dict[str, torch.Tensor], metadata: TaskMetadata):
-        """Регистрирует задачу в реестре"""
+        """Registers task in registry"""
         self.task_registry[task_id] = task_data
         self.metadata_registry[task_id] = metadata
         self.logger.debug(f"Registered task {task_id}")
     
     def get_task_by_id(self, task_id: str) -> Tuple[Dict[str, torch.Tensor], TaskMetadata]:
-        """Получает задачу по ID"""
+        """Gets task by ID"""
         if task_id not in self.task_registry:
             raise ValueError(f"Task {task_id} not found in registry")
         return self.task_registry[task_id], self.metadata_registry[task_id]
     
     def get_tasks_by_criteria(self, **criteria) -> List[Tuple[str, Dict[str, torch.Tensor], TaskMetadata]]:
-        """Получает задачи по критериям"""
+        """Gets tasks by criteria"""
         matching_tasks = []
         
         for task_id, metadata in self.metadata_registry.items():
@@ -144,7 +144,7 @@ class BaseTaskDistribution(ABC):
 
 class CryptoTaskDistribution(BaseTaskDistribution):
     """
-    Распределение задач для криптовалютного трейдинга
+    Distribution tasks for cryptocurrency trading
     
     Domain-Specific Task Distribution
     - Crypto market simulation
@@ -164,27 +164,27 @@ class CryptoTaskDistribution(BaseTaskDistribution):
         self.available_pairs = list(self.crypto_data.keys())
         self.task_counter = 0
         
-        # Статистики по задачам
+        # Statistics by tasks
         self.task_stats = defaultdict(int)
         
         self.logger.info(f"CryptoTaskDistribution initialized with {len(self.available_pairs)} trading pairs")
     
     def _generate_synthetic_data(self) -> Dict[str, np.ndarray]:
-        """Генерирует синтетические данные криптовалют"""
+        """Generates synthetic data cryptocurrencies"""
         synthetic_data = {}
         
-        # Основные торговые пары
+        # Main trading pairs
         pairs = [
             "BTCUSDT", "ETHUSDT", "ADAUSDT", "BNBUSDT", "XRPUSDT",
             "SOLUSDT", "DOTUSDT", "AVAXUSDT", "MATICUSDT", "LINKUSDT"
         ]
         
         for pair in pairs:
-            # Генерируем OHLCV данные
+            # Generate OHLCV data
             length = 10000
             base_price = np.random.uniform(0.1, 50000)
             
-            # Геометрическое броуновское движение с трендом
+            # Geometric Brownian movement with trend
             returns = np.random.normal(0.0001, 0.02, length)
             prices = base_price * np.exp(np.cumsum(returns))
             
@@ -195,13 +195,13 @@ class CryptoTaskDistribution(BaseTaskDistribution):
             close_prices = prices
             volumes = np.random.lognormal(10, 1, length)
             
-            # Технические индикаторы
+            # Technical indicators
             rsi = np.random.uniform(20, 80, length)
             macd = np.random.normal(0, 0.1, length)
             bb_upper = high_prices * 1.02
             bb_lower = low_prices * 0.98
             
-            # Объединяем в один массив
+            # Merge in one array
             data = np.column_stack([
                 open_prices, high_prices, low_prices, close_prices, volumes,
                 rsi, macd, bb_upper, bb_lower
@@ -212,15 +212,15 @@ class CryptoTaskDistribution(BaseTaskDistribution):
         return synthetic_data
     
     def sample_task(self) -> Dict[str, torch.Tensor]:
-        """Семплирует одну криптовалютную задачу"""
+        """Samples one cryptocurrency task"""
         task_id = f"crypto_task_{self.task_counter}"
         self.task_counter += 1
         
-        # Выбираем торговую пару
+        # Select trading couple
         trading_pair = random.choice(self.available_pairs)
         data = self.crypto_data[trading_pair]
         
-        # Определяем тип задачи
+        # Define type tasks
         if self.config.task_type == "classification":
             task_data, metadata = self._create_classification_task(task_id, trading_pair, data)
         elif self.config.task_type == "regression":
@@ -228,7 +228,7 @@ class CryptoTaskDistribution(BaseTaskDistribution):
         else:
             raise ValueError(f"Unsupported task type: {self.config.task_type}")
         
-        # Регистрируем задачу
+        # Register task
         self.register_task(task_id, task_data, metadata)
         self.task_stats[self.config.task_type] += 1
         
@@ -240,15 +240,15 @@ class CryptoTaskDistribution(BaseTaskDistribution):
         trading_pair: str,
         data: np.ndarray
     ) -> Tuple[Dict[str, torch.Tensor], TaskMetadata]:
-        """Создает задачу классификации направления цены"""
+        """Creates task classification directions price"""
         
-        # Выбираем случайный период
+        # Select random period
         start_idx = random.randint(self.config.sequence_length, len(data) - self.config.time_horizon - 1000)
         end_idx = start_idx + 1000
         
         period_data = data[start_idx:end_idx]
         
-        # Создаем features (sliding windows)
+        # Create features (sliding windows)
         features = []
         labels = []
         
@@ -256,22 +256,22 @@ class CryptoTaskDistribution(BaseTaskDistribution):
             # Feature window
             feature_window = period_data[i-self.config.sequence_length:i, :]  # [seq_len, n_features]
             
-            # Нормализация
+            # Normalization
             feature_window = (feature_window - feature_window.mean(axis=0)) / (feature_window.std(axis=0) + 1e-8)
             
-            # Label: направление цены через time_horizon шагов
+            # Label: direction price through time_horizon steps
             current_price = period_data[i, 3]  # close price
             future_price = period_data[i + self.config.time_horizon, 3]
             
-            # Классы: 0 - падение, 1 - рост, 2 - боковик
+            # Classes: 0 - drop, 1 - growth, 2 - sideways
             price_change = (future_price - current_price) / current_price
             
             if price_change < -0.02:
-                label = 0  # Падение
+                label = 0  # Drop
             elif price_change > 0.02:
-                label = 1  # Рост
+                label = 1  # Growth
             else:
-                label = 2  # Боковик
+                label = 2  # Sideways
             
             features.append(feature_window.flatten())
             labels.append(label)
@@ -279,20 +279,20 @@ class CryptoTaskDistribution(BaseTaskDistribution):
         features = np.array(features)
         labels = np.array(labels)
         
-        # Фильтруем по доступным классам
+        # Filter by available classes
         unique_labels = np.unique(labels)
         if len(unique_labels) < self.config.num_classes:
-            # Если не хватает классов, дополняем случайными
+            # If not enough classes, supplement random
             while len(unique_labels) < self.config.num_classes:
                 fake_label = len(unique_labels)
                 labels = np.append(labels, fake_label)
                 features = np.vstack([features, features[-1]])
                 unique_labels = np.unique(labels)
         
-        # Выбираем нужное количество классов
+        # Select needed number classes
         selected_classes = np.random.choice(unique_labels, self.config.num_classes, replace=False)
         
-        # Support и query sets
+        # Support and query sets
         support_data, support_labels, query_data, query_labels = self._split_support_query(
             features, labels, selected_classes
         )
@@ -304,7 +304,7 @@ class CryptoTaskDistribution(BaseTaskDistribution):
             'query_labels': torch.LongTensor(query_labels)
         }
         
-        # Метаданные
+        # Metadata
         metadata = TaskMetadata(
             task_id=task_id,
             task_type="classification",
@@ -326,9 +326,9 @@ class CryptoTaskDistribution(BaseTaskDistribution):
         trading_pair: str,
         data: np.ndarray
     ) -> Tuple[Dict[str, torch.Tensor], TaskMetadata]:
-        """Создает задачу регрессии предсказания цены"""
+        """Creates task regression predictions price"""
         
-        # Аналогично классификации, но с continuous targets
+        # Similarly classification, but with continuous targets
         start_idx = random.randint(self.config.sequence_length, len(data) - self.config.time_horizon - 1000)
         end_idx = start_idx + 1000
         
@@ -353,9 +353,9 @@ class CryptoTaskDistribution(BaseTaskDistribution):
         features = np.array(features)
         targets = np.array(targets)
         
-        # Случайно выбираем примеры для support и query
+        # Randomly select examples for support and query
         n_total = len(features)
-        n_support = self.config.num_support * self.config.num_classes  # Переиспользуем параметр
+        n_support = self.config.num_support * self.config.num_classes  # Reuse parameter
         n_query = self.config.num_query * self.config.num_classes
         
         indices = np.random.permutation(n_total)
@@ -372,7 +372,7 @@ class CryptoTaskDistribution(BaseTaskDistribution):
         metadata = TaskMetadata(
             task_id=task_id,
             task_type="regression",
-            difficulty=np.std(targets),  # Сложность = волатильность
+            difficulty=np.std(targets),  # Complexity = volatility
             source_domain="crypto_pairs",
             target_variable="price_change",
             feature_names=[f"feature_{i}" for i in range(features.shape[1])],
@@ -390,7 +390,7 @@ class CryptoTaskDistribution(BaseTaskDistribution):
         labels: np.ndarray,
         selected_classes: np.ndarray
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-        """Разделяет данные на support и query sets"""
+        """Separates data on support and query sets"""
         
         support_data = []
         support_labels = []
@@ -398,19 +398,19 @@ class CryptoTaskDistribution(BaseTaskDistribution):
         query_labels = []
         
         for class_idx, class_label in enumerate(selected_classes):
-            # Находим примеры этого класса
+            # Find examples of this class
             class_mask = labels == class_label
             class_features = features[class_mask]
-            class_labels = np.full(len(class_features), class_idx)  # Перенумеровываем классы
+            class_labels = np.full(len(class_features), class_idx)  # Renumber classes
             
             if len(class_features) < self.config.num_support + self.config.num_query:
-                # Дублируем примеры если не хватает
+                # Duplicate examples if not enough
                 needed = self.config.num_support + self.config.num_query
                 indices = np.random.choice(len(class_features), needed, replace=True)
                 class_features = class_features[indices]
                 class_labels = np.full(needed, class_idx)
             
-            # Случайно выбираем примеры
+            # Randomly select examples
             indices = np.random.permutation(len(class_features))
             support_indices = indices[:self.config.num_support]
             query_indices = indices[self.config.num_support:self.config.num_support + self.config.num_query]
@@ -432,44 +432,44 @@ class CryptoTaskDistribution(BaseTaskDistribution):
         support_labels: np.ndarray,
         query_labels: np.ndarray
     ) -> float:
-        """Вычисляет сложность задачи классификации"""
+        """Computes complexity tasks classification"""
         
-        # Факторы сложности:
-        # 1. Балансировка классов
+        # Factors complexity:
+        # 1. Balancing classes
         unique, counts = np.unique(support_labels, return_counts=True)
         balance_ratio = np.min(counts) / np.max(counts)
         
-        # 2. Количество классов
+        # 2. Number classes
         num_classes = len(unique)
-        class_complexity = num_classes / 10.0  # Нормализуем
+        class_complexity = num_classes / 10.0  # Normalize
         
-        # 3. Размер support set
+        # 3. Size support set
         support_size_factor = 1.0 / len(support_labels) * 100
         
-        # Общая сложность
+        # Total complexity
         difficulty = (1.0 - balance_ratio) * 0.4 + class_complexity * 0.3 + support_size_factor * 0.3
         return np.clip(difficulty, 0.0, 1.0)
     
     def sample_batch(self, batch_size: int) -> List[Dict[str, torch.Tensor]]:
-        """Семплирует batch задач"""
+        """Samples batch tasks"""
         return [self.sample_task() for _ in range(batch_size)]
     
     def get_task_difficulty(self, task_data: Dict[str, torch.Tensor]) -> float:
-        """Оценивает сложность задачи на основе данных"""
+        """Evaluates complexity tasks on basis data"""
         support_labels = task_data['support_labels']
         query_labels = task_data['query_labels']
         
         if task_data['support_labels'].dtype == torch.long:
-            # Классификация
+            # Classification
             return self._compute_classification_difficulty(
                 support_labels.numpy(), query_labels.numpy()
             )
         else:
-            # Регрессия
+            # Regression
             return float(torch.std(support_labels).item())
     
     def get_task_statistics(self) -> Dict[str, Any]:
-        """Возвращает статистику по задачам"""
+        """Returns statistics by tasks"""
         return {
             'total_tasks': sum(self.task_stats.values()),
             'task_types': dict(self.task_stats),
@@ -480,7 +480,7 @@ class CryptoTaskDistribution(BaseTaskDistribution):
 
 class CurriculumTaskDistribution(BaseTaskDistribution):
     """
-    Распределение задач с curriculum learning
+    Distribution tasks with curriculum learning
     
     Progressive Learning System
     - Adaptive difficulty progression
@@ -501,22 +501,22 @@ class CurriculumTaskDistribution(BaseTaskDistribution):
         self.performance_history = []
         self.difficulty_schedule = self._create_difficulty_schedule()
         
-        # Параметры curriculum
-        self.difficulty_increase_threshold = 0.8  # Accuracy threshold для увеличения сложности
-        self.difficulty_decrease_threshold = 0.5  # Accuracy threshold для уменьшения сложности
+        # Parameters curriculum
+        self.difficulty_increase_threshold = 0.8  # Accuracy threshold for increase complexity
+        self.difficulty_decrease_threshold = 0.5  # Accuracy threshold for decrease complexity
         self.difficulty_step = 0.1
-        self.patience = 5  # Количество эпох для изменения сложности
+        self.patience = 5  # Number epochs for changes complexity
         
         self.logger.info(f"CurriculumTaskDistribution initialized with difficulty range: "
                         f"{config.min_difficulty}-{config.max_difficulty}")
     
     def _create_difficulty_schedule(self) -> List[float]:
-        """Создает расписание увеличения сложности"""
+        """Creates schedule increase complexity"""
         num_steps = 20
         min_diff = self.config.min_difficulty
         max_diff = self.config.max_difficulty
         
-        # Экспоненциальное увеличение сложности
+        # Exponential increase complexity
         schedule = []
         for i in range(num_steps):
             progress = i / (num_steps - 1)
@@ -526,17 +526,17 @@ class CurriculumTaskDistribution(BaseTaskDistribution):
         return schedule
     
     def update_performance(self, performance_metrics: Dict[str, float]) -> None:
-        """Обновляет историю производительности и адаптирует сложность"""
+        """Updates history performance and adapts complexity"""
         self.performance_history.append(performance_metrics)
         
-        # Оцениваем последние результаты
+        # Evaluate recent results
         if len(self.performance_history) >= self.patience:
             recent_performance = self.performance_history[-self.patience:]
             avg_accuracy = np.mean([p.get('accuracy', 0) for p in recent_performance])
             
-            # Адаптируем сложность
+            # Adapt complexity
             if avg_accuracy > self.difficulty_increase_threshold:
-                # Увеличиваем сложность
+                # Increase complexity
                 new_difficulty = min(
                     self.current_difficulty + self.difficulty_step,
                     self.config.max_difficulty
@@ -546,7 +546,7 @@ class CurriculumTaskDistribution(BaseTaskDistribution):
                     self.logger.info(f"Increased difficulty to {self.current_difficulty:.2f}")
             
             elif avg_accuracy < self.difficulty_decrease_threshold:
-                # Уменьшаем сложность
+                # Reduce complexity
                 new_difficulty = max(
                     self.current_difficulty - self.difficulty_step,
                     self.config.min_difficulty
@@ -556,18 +556,18 @@ class CurriculumTaskDistribution(BaseTaskDistribution):
                     self.logger.info(f"Decreased difficulty to {self.current_difficulty:.2f}")
     
     def sample_task(self) -> Dict[str, torch.Tensor]:
-        """Семплирует задачу с учетом текущей сложности"""
-        # Генерируем несколько кандидатов и выбираем подходящий по сложности
+        """Samples task with considering current complexity"""
+        # Generate several candidates and select suitable by complexity
         candidates = []
         difficulties = []
         
-        for _ in range(10):  # Генерируем 10 кандидатов
+        for _ in range(10):  # Generate 10 candidates
             task = self.base_distribution.sample_task()
             difficulty = self.base_distribution.get_task_difficulty(task)
             candidates.append(task)
             difficulties.append(difficulty)
         
-        # Выбираем задачу с ближайшей сложностью
+        # Select task with nearest complexity
         target_difficulty = self.current_difficulty
         best_idx = np.argmin([abs(d - target_difficulty) for d in difficulties])
         
@@ -580,15 +580,15 @@ class CurriculumTaskDistribution(BaseTaskDistribution):
         return selected_task
     
     def sample_batch(self, batch_size: int) -> List[Dict[str, torch.Tensor]]:
-        """Семплирует batch задач с учетом curriculum"""
+        """Samples batch tasks with considering curriculum"""
         return [self.sample_task() for _ in range(batch_size)]
     
     def get_task_difficulty(self, task_data: Dict[str, torch.Tensor]) -> float:
-        """Делегирует оценку сложности базовому распределению"""
+        """Delegates estimation complexity base distribution"""
         return self.base_distribution.get_task_difficulty(task_data)
     
     def get_curriculum_status(self) -> Dict[str, Any]:
-        """Возвращает статус curriculum learning"""
+        """Returns status curriculum learning"""
         return {
             'current_difficulty': self.current_difficulty,
             'min_difficulty': self.config.min_difficulty,
@@ -603,7 +603,7 @@ class CurriculumTaskDistribution(BaseTaskDistribution):
 
 class MultiDomainTaskDistribution(BaseTaskDistribution):
     """
-    Распределение задач из нескольких доменов
+    Distribution tasks from several domains
     
     Multi-Domain Meta-Learning
     - Cross-domain transfer
@@ -623,58 +623,58 @@ class MultiDomainTaskDistribution(BaseTaskDistribution):
         self.domain_distributions = domain_distributions
         self.domain_names = list(domain_distributions.keys())
         
-        # Веса доменов для семплирования
+        # Weights domains for sampling
         if domain_weights is None:
             self.domain_weights = {name: 1.0 for name in self.domain_names}
         else:
             self.domain_weights = domain_weights
         
-        # Нормализуем веса
+        # Normalize weights
         total_weight = sum(self.domain_weights.values())
         self.domain_weights = {
             name: weight / total_weight
             for name, weight in self.domain_weights.items()
         }
         
-        # Статистики
+        # Statistics
         self.domain_stats = defaultdict(int)
         
         self.logger.info(f"MultiDomainTaskDistribution initialized with domains: {self.domain_names}")
     
     def sample_task(self) -> Dict[str, torch.Tensor]:
-        """Семплирует задачу из случайного домена"""
-        # Выбираем домен согласно весам
+        """Samples task from random domain"""
+        # Select domain according to weights
         domain_name = np.random.choice(
             self.domain_names,
             p=list(self.domain_weights.values())
         )
         
-        # Семплируем задачу из выбранного домена
+        # Sample task from selected domain
         task = self.domain_distributions[domain_name].sample_task()
         
-        # Добавляем информацию о домене
+        # Add information about domain
         task['domain'] = domain_name
         
         self.domain_stats[domain_name] += 1
         return task
     
     def sample_batch(self, batch_size: int) -> List[Dict[str, torch.Tensor]]:
-        """Семплирует batch с балансировкой по доменам"""
+        """Samples batch with balancing by domains"""
         batch = []
         
-        # Распределяем задачи по доменам
+        # Distribute tasks by domains
         domain_counts = {}
         remaining = batch_size
         
-        for domain_name in self.domain_names[:-1]:  # Все кроме последнего
+        for domain_name in self.domain_names[:-1]:  # All except last
             count = int(batch_size * self.domain_weights[domain_name])
             domain_counts[domain_name] = count
             remaining -= count
         
-        # Остаток отдаем последнему домену
+        # Remainder give last domain
         domain_counts[self.domain_names[-1]] = remaining
         
-        # Семплируем задачи
+        # Sample tasks
         for domain_name, count in domain_counts.items():
             if count > 0:
                 domain_tasks = self.domain_distributions[domain_name].sample_batch(count)
@@ -682,24 +682,24 @@ class MultiDomainTaskDistribution(BaseTaskDistribution):
                     task['domain'] = domain_name
                 batch.extend(domain_tasks)
         
-        # Перемешиваем batch
+        # Shuffle batch
         random.shuffle(batch)
         return batch
     
     def get_task_difficulty(self, task_data: Dict[str, torch.Tensor]) -> float:
-        """Оценивает сложность задачи через соответствующий домен"""
+        """Evaluates complexity tasks through corresponding domain"""
         domain_name = task_data.get('domain', self.domain_names[0])
         return self.domain_distributions[domain_name].get_task_difficulty(task_data)
     
     def update_domain_weights(self, performance_by_domain: Dict[str, float]) -> None:
-        """Обновляет веса доменов на основе производительности"""
-        # Увеличиваем веса доменов с низкой производительностью
+        """Updates weights domains on basis performance"""
+        # Increase weights domains with low performance
         for domain_name in self.domain_names:
             performance = performance_by_domain.get(domain_name, 0.5)
-            # Обратная зависимость: чем хуже производительность, тем больше вес
+            # Reverse dependency: than worse performance, the more weight
             self.domain_weights[domain_name] = 1.0 / (performance + 0.1)
         
-        # Нормализуем веса
+        # Normalize weights
         total_weight = sum(self.domain_weights.values())
         self.domain_weights = {
             name: weight / total_weight
@@ -709,7 +709,7 @@ class MultiDomainTaskDistribution(BaseTaskDistribution):
         self.logger.info(f"Updated domain weights: {self.domain_weights}")
     
     def get_domain_statistics(self) -> Dict[str, Any]:
-        """Возвращает статистику по доменам"""
+        """Returns statistics by domains"""
         return {
             'domain_weights': self.domain_weights,
             'domain_stats': dict(self.domain_stats),

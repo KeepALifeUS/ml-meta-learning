@@ -2,8 +2,8 @@
 Reptile Algorithm Implementation
 First-Order Meta-Learning for Crypto Trading
 
-Реализация алгоритма Reptile - упрощенной версии MAML без вторых производных.
-Особенно эффективен для быстрой адаптации к новым криптовалютным активам.
+Implementation algorithm Reptile - simplified version MAML without second derivatives.
+Especially effective for fast adaptation to new cryptocurrency assets.
 """
 
 import torch
@@ -23,23 +23,23 @@ from ..utils.meta_utils import MetaLearningMetrics
 
 @dataclass
 class ReptileConfig:
-    """Конфигурация for Reptile algorithm"""
+    """Configuration for Reptile algorithm"""
     
-    # Основные параметры
-    inner_lr: float = 0.01  # Скорость обучения на задаче
-    meta_lr: float = 0.001  # Скорость мета-обучения
-    num_inner_steps: int = 5  # Количество шагов на задаче
+    # Main parameters
+    inner_lr: float = 0.01  # Speed training on task
+    meta_lr: float = 0.001  # Speed meta-training
+    num_inner_steps: int = 5  # Number steps on task
     
-    # Параметры задач
-    num_support: int = 5  # Размер support set
-    num_query: int = 15  # Размер query set
+    # Parameters tasks
+    num_support: int = 5  # Size support set
+    num_query: int = 15  # Size query set
     
-    # Оптимизация
-    meta_batch_size: int = 32  # Количество задач в мета-batch
-    gradient_clip: Optional[float] = 1.0  # Обрезка градиентов
-    weight_decay: float = 0.0001  # L2 регуляризация
+    # Optimization
+    meta_batch_size: int = 32  # Number tasks in meta-batch
+    gradient_clip: Optional[float] = 1.0  # Trimming gradients
+    weight_decay: float = 0.0001  # L2 regularization
     
-    # Мониторинг
+    # Monitoring
     log_interval: int = 10
     device: str = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -54,9 +54,9 @@ class Reptile:
     - Fast convergence
     - Production scalable
     
-    Reptile использует простое правило обновления:
+    Reptile uses simple rule updates:
     θ' = θ + ε * (φ - θ)
-    где φ - параметры после адаптации на задаче
+    where φ - parameters after adaptation on task
     """
     
     def __init__(
@@ -66,22 +66,22 @@ class Reptile:
         logger: Optional[logging.Logger] = None
     ):
         """
-        Инициализация Reptile
+        Initialization Reptile
         
         Args:
-            model: Базовая модель для мета-обучения
-            config: Конфигурация Reptile
-            logger: Логгер для мониторинга
+            model: Base model for meta-training
+            config: Configuration Reptile
+            logger: Logger for monitoring
         """
         self.model = model.to(config.device)
         self.config = config
         self.logger = logger or logging.getLogger(__name__)
         
-        # Мета-оптимизатор не нужен, используем прямое обновление
+        # Meta-optimizer not needed, use direct update
         self.gradient_manager = GradientManager()
         self.metrics = MetaLearningMetrics()
         
-        # Состояние
+        # State
         self.global_step = 0
         self.best_meta_loss = float('inf')
         
@@ -93,19 +93,19 @@ class Reptile:
         support_labels: torch.Tensor
     ) -> Tuple[OrderedDict, List[float]]:
         """
-        Адаптация модели к конкретной задаче
+        Adaptation model to specific task
         
         Args:
-            support_data: Данные для обучения на задаче
-            support_labels: Метки для обучения
+            support_data: Data for training on task
+            support_labels: Labels for training
             
         Returns:
-            Tuple из адаптированных параметров и losses
+            Tuple from adapted parameters and losses
         """
-        # Создаем копию модели для адаптации
+        # Create copy model for adaptation
         adapted_model = copy.deepcopy(self.model)
         
-        # Оптимизатор для адаптации
+        # Optimizer for adaptation
         inner_optimizer = optim.SGD(
             adapted_model.parameters(),
             lr=self.config.inner_lr
@@ -125,7 +125,7 @@ class Reptile:
             loss.backward()
             inner_optimizer.step()
         
-        # Возвращаем адаптированные параметры
+        # Return adapted parameters
         adapted_params = OrderedDict(adapted_model.named_parameters())
         return adapted_params, adaptation_losses
     
@@ -134,15 +134,15 @@ class Reptile:
         task_batch: List[Dict[str, torch.Tensor]]
     ) -> Dict[str, float]:
         """
-        Один шаг мета-обучения Reptile
+        One step meta-training Reptile
         
         Args:
-            task_batch: Batch задач для мета-обучения
+            task_batch: Batch tasks for meta-training
             
         Returns:
-            Словарь с метриками
+            Dictionary with metrics
         """
-        # Сохраняем исходные параметры
+        # Save original parameters
         original_params = OrderedDict()
         for name, param in self.model.named_parameters():
             original_params[name] = param.data.clone()
@@ -152,23 +152,23 @@ class Reptile:
         query_accuracies = []
         adapted_params_list = []
         
-        # Обрабатываем каждую задачу в batch
+        # Process each task in batch
         for task in task_batch:
             support_data = task['support_data'].to(self.config.device)
             support_labels = task['support_labels'].to(self.config.device)
             query_data = task['query_data'].to(self.config.device)
             query_labels = task['query_labels'].to(self.config.device)
             
-            # Адаптация к задаче
+            # Adaptation to task
             adapted_params, adaptation_losses = self.inner_adaptation(
                 support_data, support_labels
             )
             adapted_params_list.append(adapted_params)
             all_adaptation_losses.extend(adaptation_losses)
             
-            # Оценка на query set
+            # Estimation on query set
             with torch.no_grad():
-                # Временно применяем адаптированные параметры
+                # Temporarily apply adapted parameters
                 self._apply_params(adapted_params)
                 
                 query_predictions = self.model(query_data)
@@ -182,13 +182,13 @@ class Reptile:
                 )
                 query_accuracies.append(query_accuracy)
                 
-                # Восстанавливаем исходные параметры
+                # Restore original parameters
                 self._apply_params(original_params)
         
-        # Reptile мета-обновление
+        # Reptile meta-update
         self._reptile_meta_update(adapted_params_list, original_params)
         
-        # Метрики
+        # Metrics
         metrics = {
             'adaptation_loss': np.mean(all_adaptation_losses),
             'query_loss': np.mean(query_losses),
@@ -207,26 +207,26 @@ class Reptile:
         original_params: OrderedDict
     ) -> None:
         """
-        Основное обновление Reptile
+        Main update Reptile
         
         Args:
-            adapted_params_list: Список адаптированных параметров
-            original_params: Исходные параметры модели
+            adapted_params_list: List adapted parameters
+            original_params: Original parameters model
         """
-        # Вычисляем среднее направление обновления
+        # Compute average direction updates
         meta_gradients = OrderedDict()
         
         for name in original_params.keys():
-            # Средняя разность между адаптированными и исходными параметрами
+            # Average difference between adapted and original parameters
             param_diffs = []
             for adapted_params in adapted_params_list:
                 diff = adapted_params[name].data - original_params[name]
                 param_diffs.append(diff)
             
-            # Усредняем по всем задачам
+            # Average by all tasks
             meta_gradients[name] = torch.stack(param_diffs).mean(dim=0)
         
-        # Применяем мета-обновление
+        # Apply meta-update
         with torch.no_grad():
             for name, param in self.model.named_parameters():
                 if name in meta_gradients:
@@ -239,7 +239,7 @@ class Reptile:
                     if self.config.weight_decay > 0:
                         param.data.mul_(1 - self.config.weight_decay)
         
-        # Gradient clipping на мета-градиенты
+        # Gradient clipping on meta-gradients
         if self.config.gradient_clip:
             total_norm = 0
             for grad in meta_gradients.values():
@@ -256,7 +256,7 @@ class Reptile:
                         )
     
     def _apply_params(self, params: OrderedDict) -> None:
-        """Применяет параметры к модели"""
+        """Applies parameters to model"""
         for name, param in self.model.named_parameters():
             if name in params:
                 param.data = params[name].data
@@ -266,15 +266,15 @@ class Reptile:
         validation_tasks: List[Dict[str, torch.Tensor]]
     ) -> Dict[str, float]:
         """
-        Валидация мета-модели
+        Validation meta-model
         
         Args:
-            validation_tasks: Задачи для валидации
+            validation_tasks: Tasks for validation
             
         Returns:
-            Словарь с метриками валидации
+            Dictionary with metrics validation
         """
-        # Сохраняем текущие параметры
+        # Save current parameters
         original_params = OrderedDict()
         for name, param in self.model.named_parameters():
             original_params[name] = param.data.clone()
@@ -288,15 +288,15 @@ class Reptile:
                 query_data = task['query_data'].to(self.config.device)
                 query_labels = task['query_labels'].to(self.config.device)
                 
-                # Адаптация к задаче
+                # Adaptation to task
                 adapted_params, adaptation_losses = self.inner_adaptation(
                     support_data, support_labels
                 )
                 
-                # Применяем адаптированные параметры
+                # Apply adapted parameters
                 self._apply_params(adapted_params)
                 
-                # Оценка на query set
+                # Estimation on query set
                 with torch.no_grad():
                     query_predictions = self.model(query_data)
                     query_loss = nn.functional.mse_loss(
@@ -313,14 +313,14 @@ class Reptile:
                     'adaptation_loss': np.mean(adaptation_losses)
                 })
                 
-                # Восстанавливаем исходные параметры для следующей задачи
+                # Restore original parameters for next tasks
                 self._apply_params(original_params)
         
         finally:
-            # Гарантированно восстанавливаем параметры
+            # Guaranteed restore parameters
             self._apply_params(original_params)
         
-        # Агрегируем метрики
+        # Aggregate metrics
         avg_metrics = {}
         for key in all_metrics[0].keys():
             avg_metrics[f'val_{key}'] = np.mean([m[key] for m in all_metrics])
@@ -335,16 +335,16 @@ class Reptile:
         return_copy: bool = True
     ) -> nn.Module:
         """
-        Быстрая адаптация к новой задаче
+        Fast adaptation to new task
         
         Args:
-            support_data: Данные для адаптации
-            support_labels: Метки для адаптации
-            num_adaptation_steps: Количество шагов адаптации
-            return_copy: Возвращать копию или изменить исходную модель
+            support_data: Data for adaptation
+            support_labels: Labels for adaptation
+            num_adaptation_steps: Number steps adaptation
+            return_copy: Return copy or change original model
             
         Returns:
-            Адаптированная модель
+            Adapted model
         """
         if num_adaptation_steps is None:
             num_adaptation_steps = self.config.num_inner_steps
@@ -354,13 +354,13 @@ class Reptile:
         else:
             adapted_model = self.model
         
-        # Оптимизатор для адаптации
+        # Optimizer for adaptation
         adaptation_optimizer = optim.SGD(
             adapted_model.parameters(),
             lr=self.config.inner_lr
         )
         
-        # Адаптация
+        # Adaptation
         adapted_model.train()
         for step in range(num_adaptation_steps):
             adaptation_optimizer.zero_grad()
@@ -382,14 +382,14 @@ class Reptile:
         labels: torch.Tensor,
         threshold: float = 0.1
     ) -> float:
-        """Вычисляет accuracy для регрессии"""
+        """Computes accuracy for regression"""
         with torch.no_grad():
             errors = torch.abs(predictions - labels)
             correct = (errors < threshold).float()
             return correct.mean().item()
     
     def save_checkpoint(self, filepath: str) -> None:
-        """Сохранение checkpoint модели"""
+        """Saving checkpoint model"""
         checkpoint = {
             'model_state_dict': self.model.state_dict(),
             'config': self.config,
@@ -400,7 +400,7 @@ class Reptile:
         self.logger.info(f"Reptile checkpoint saved to {filepath}")
     
     def load_checkpoint(self, filepath: str) -> None:
-        """Загрузка checkpoint модели"""
+        """Loading checkpoint model"""
         checkpoint = torch.load(filepath, map_location=self.config.device)
         
         self.model.load_state_dict(checkpoint['model_state_dict'])
@@ -412,7 +412,7 @@ class Reptile:
 
 class ReptileTrainer:
     """
-    Trainer для Reptile с enterprise patterns
+    Trainer for Reptile with enterprise patterns
     
     Features:
     - Efficient memory usage
@@ -445,15 +445,15 @@ class ReptileTrainer:
         validation_interval: int = 100
     ) -> Dict[str, List[float]]:
         """
-        Основной цикл обучения Reptile
+        Main loop training Reptile
         
         Args:
-            num_iterations: Количество итераций обучения
-            save_dir: Директория для checkpoint'ов
-            validation_interval: Интервал валидации
+            num_iterations: Number iterations training
+            save_dir: Directory for checkpoint'
+            validation_interval: Interval validation
             
         Returns:
-            История метрик обучения
+            History metrics training
         """
         iteration = 0
         
@@ -488,13 +488,13 @@ class ReptileTrainer:
         return self._compile_metrics_history()
     
     def _log_metrics(self, iteration: int, metrics: Dict[str, float]) -> None:
-        """Логирование метрик"""
+        """Logging metrics"""
         self.logger.info(f"Iteration {iteration}:")
         for key, value in metrics.items():
             self.logger.info(f"  {key}: {value:.4f}")
     
     def _compile_metrics_history(self) -> Dict[str, List[float]]:
-        """Компиляция истории метрик"""
+        """Compilation history metrics"""
         if not self.metrics_history:
             return {}
         

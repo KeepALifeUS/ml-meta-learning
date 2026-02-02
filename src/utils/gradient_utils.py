@@ -2,8 +2,8 @@
 Gradient Utilities for Meta-Learning
 Advanced Gradient Management
 
-Утилиты для работы с градиентами в мета-обучении: вычисление норм,
-модификация, анализ и оптимизация градиентных операций.
+Utilities for work with gradients in meta-training: computation norms,
+modification, analysis and optimization gradient operations.
 """
 
 import torch
@@ -17,7 +17,7 @@ import math
 
 class GradientManager:
     """
-    Менеджер для работы с градиентами в мета-обучении
+    Manager for work with gradients in meta-training
     
     Gradient Management System
     - Efficient gradient computation
@@ -28,7 +28,7 @@ class GradientManager:
     def __init__(self, logger: Optional[logging.Logger] = None):
         self.logger = logger or logging.getLogger(__name__)
         
-        # Статистики градиентов
+        # Statistics gradients
         self.gradient_stats = defaultdict(list)
         self.computation_stats = defaultdict(list)
         
@@ -38,14 +38,14 @@ class GradientManager:
         norm_type: float = 2.0
     ) -> float:
         """
-        Вычисляет норму градиентов
+        Computes norm gradients
         
         Args:
-            parameters: Итератор параметров модели
-            norm_type: Тип нормы (1, 2, inf)
+            parameters: Iterator parameters model
+            norm_type: Type norms (1, 2, inf)
             
         Returns:
-            Значение нормы градиентов
+            Value norms gradients
         """
         parameters = list(parameters)
         
@@ -79,13 +79,13 @@ class GradientManager:
         parameters: Iterator[nn.Parameter]
     ) -> Dict[str, float]:
         """
-        Вычисляет статистики градиентов
+        Computes statistics gradients
         
         Args:
-            parameters: Итератор параметров модели
+            parameters: Iterator parameters model
             
         Returns:
-            Словарь со статистиками
+            Dictionary with statistics
         """
         parameters = list(parameters)
         
@@ -100,7 +100,7 @@ class GradientManager:
                 'norm_inf': 0.0
             }
         
-        # Собираем все градиенты
+        # Collect all gradients
         all_grads = torch.cat([
             param.grad.detach().flatten()
             for param in parameters
@@ -117,7 +117,7 @@ class GradientManager:
             'norm_inf': float(torch.norm(all_grads, p=float('inf')).item())
         }
         
-        # Дополнительные статистики
+        # Additional statistics
         stats['zero_ratio'] = float((all_grads == 0).float().mean().item())
         stats['positive_ratio'] = float((all_grads > 0).float().mean().item())
         
@@ -130,22 +130,22 @@ class GradientManager:
         norm_type: float = 2.0
     ) -> float:
         """
-        Обрезает градиенты и возвращает исходную норму
+        Trims gradients and returns original norm
         
         Args:
-            parameters: Итератор параметров модели
-            max_norm: Максимальная норма градиентов
-            norm_type: Тип нормы
+            parameters: Iterator parameters model
+            max_norm: Maximum norm gradients
+            norm_type: Type norms
             
         Returns:
-            Исходная норма градиентов до обрезки
+            Original norm gradients until trimming
         """
         parameters = list(parameters)
         
-        # Вычисляем текущую норму
+        # Compute current norm
         total_norm = self.compute_gradient_norm(parameters, norm_type)
         
-        # Обрезаем если необходимо
+        # Trim if necessary
         if total_norm > max_norm:
             clip_coef = max_norm / (total_norm + 1e-6)
             for param in parameters:
@@ -160,11 +160,11 @@ class GradientManager:
         scale_factor: float
     ) -> None:
         """
-        Масштабирует градиенты
+        Scales gradients
         
         Args:
-            parameters: Итератор параметров модели
-            scale_factor: Коэффициент масштабирования
+            parameters: Iterator parameters model
+            scale_factor: Coefficient scaling
         """
         for param in parameters:
             if param.grad is not None:
@@ -177,12 +177,12 @@ class GradientManager:
         device: Optional[torch.device] = None
     ) -> None:
         """
-        Добавляет шум к градиентам для регуляризации
+        Adds noise to gradients for regularization
         
         Args:
-            parameters: Итератор параметров модели
-            noise_std: Стандартное отклонение шума
-            device: Устройство для вычислений
+            parameters: Iterator parameters model
+            noise_std: Standard deviation noise
+            device: Device for computations
         """
         for param in parameters:
             if param.grad is not None:
@@ -199,25 +199,25 @@ class GradientManager:
         similarity_type: str = "cosine"
     ) -> float:
         """
-        Вычисляет схожесть между двумя наборами градиентов
+        Computes similarity between two sets gradients
         
         Args:
-            grads1: Первый набор градиентов
-            grads2: Второй набор градиентов
-            similarity_type: Тип схожести (cosine, l2, pearson)
+            grads1: First set gradients
+            grads2: Second set gradients
+            similarity_type: Type similarity (cosine, l2, pearson)
             
         Returns:
-            Значение схожести
+            Value similarity
         """
         if len(grads1) != len(grads2):
             raise ValueError("Gradient lists must have the same length")
         
-        # Объединяем все градиенты в один тензор
+        # Merge all gradients in one tensor
         flat_grads1 = torch.cat([g.flatten() for g in grads1])
         flat_grads2 = torch.cat([g.flatten() for g in grads2])
         
         if similarity_type == "cosine":
-            # Косинусное сходство
+            # Cosine similarity
             dot_product = torch.dot(flat_grads1, flat_grads2)
             norm1 = torch.norm(flat_grads1)
             norm2 = torch.norm(flat_grads2)
@@ -229,13 +229,13 @@ class GradientManager:
             return float(similarity.item())
         
         elif similarity_type == "l2":
-            # L2 расстояние (инвертированное для схожести)
+            # L2 distance (inverted for similarity)
             l2_distance = torch.norm(flat_grads1 - flat_grads2)
             similarity = 1.0 / (1.0 + l2_distance.item())
             return float(similarity)
         
         elif similarity_type == "pearson":
-            # Корреляция Пирсона
+            # Correlation Pearson
             mean1 = torch.mean(flat_grads1)
             mean2 = torch.mean(flat_grads2)
             
@@ -260,14 +260,14 @@ class GradientManager:
         layer_names: Optional[List[str]] = None
     ) -> Dict[str, Dict[str, float]]:
         """
-        Анализирует поток градиентов через слои модели
+        Analyzes flow gradients through layers model
         
         Args:
-            model: Модель для анализа
-            layer_names: Имена слоев для анализа (все, если None)
+            model: Model for analysis
+            layer_names: Names layers for analysis (all, if None)
             
         Returns:
-            Словарь с анализом градиентного потока
+            Dictionary with analysis gradient flow
         """
         gradient_flow = {}
         
@@ -284,7 +284,7 @@ class GradientManager:
                         'numel': int(param.grad.numel())
                     }
                     
-                    # Проверяем на проблемы
+                    # Check on problems
                     grad_stats['has_nan'] = bool(torch.isnan(param.grad).any().item())
                     grad_stats['has_inf'] = bool(torch.isinf(param.grad).any().item())
                     grad_stats['is_zero'] = bool(torch.all(param.grad == 0).item())
@@ -299,14 +299,14 @@ class GradientManager:
         gradient_threshold: float = 1e-7
     ) -> Dict[str, Any]:
         """
-        Обнаруживает проблемы с градиентами
+        Detects problems with gradients
         
         Args:
-            model: Модель для анализа
-            gradient_threshold: Порог для обнаружения исчезающих градиентов
+            model: Model for analysis
+            gradient_threshold: Threshold for detection vanishing gradients
             
         Returns:
-            Словарь с обнаруженными проблемами
+            Dictionary with detected problems
         """
         problems = {
             'vanishing_gradients': [],
@@ -323,33 +323,33 @@ class GradientManager:
                 grad_norm = torch.norm(param.grad).item()
                 gradient_norms[name] = grad_norm
                 
-                # Исчезающие градиенты
+                # Vanishing gradients
                 if grad_norm < gradient_threshold:
                     problems['vanishing_gradients'].append({
                         'layer': name,
                         'norm': grad_norm
                     })
                 
-                # Взрывающиеся градиенты
-                if grad_norm > 100:  # Порог для взрывающихся градиентов
+                # Exploding gradients
+                if grad_norm > 100:  # Threshold for exploding gradients
                     problems['exploding_gradients'].append({
                         'layer': name,
                         'norm': grad_norm
                     })
                 
-                # NaN градиенты
+                # NaN gradients
                 if torch.isnan(param.grad).any():
                     problems['nan_gradients'].append(name)
                 
-                # Inf градиенты
+                # Inf gradients
                 if torch.isinf(param.grad).any():
                     problems['inf_gradients'].append(name)
                 
-                # Нулевые градиенты
+                # Zero gradients
                 if torch.all(param.grad == 0):
                     problems['zero_gradients'].append(name)
         
-        # Добавляем статистики
+        # Add statistics
         if gradient_norms:
             problems['statistics'] = {
                 'mean_norm': float(np.mean(list(gradient_norms.values()))),
@@ -366,28 +366,28 @@ class GradientManager:
         step_name: str
     ) -> None:
         """
-        Отслеживает обновления градиентов для анализа
+        Tracks updates gradients for analysis
         
         Args:
-            model: Модель для отслеживания
-            step_name: Имя шага для идентификации
+            model: Model for tracking
+            step_name: Name step for identification
         """
         gradient_stats = self.compute_gradient_stats(model.parameters())
         
-        # Записываем статистики
+        # Record statistics
         for stat_name, value in gradient_stats.items():
             self.gradient_stats[f"{step_name}_{stat_name}"].append(value)
         
-        # Записываем время
+        # Record time
         import time
         self.computation_stats[f"{step_name}_timestamp"].append(time.time())
     
     def get_gradient_statistics_summary(self) -> Dict[str, Any]:
         """
-        Возвращает сводку статистик градиентов
+        Returns summary statistics gradients
         
         Returns:
-            Словарь со сводной статистикой
+            Dictionary with summary statistics
         """
         summary = {}
         
@@ -404,14 +404,14 @@ class GradientManager:
         return summary
     
     def clear_statistics(self) -> None:
-        """Очищает накопленную статистику"""
+        """Clears accumulated statistics"""
         self.gradient_stats.clear()
         self.computation_stats.clear()
 
 
 class HigherOrderGradients:
     """
-    Утилиты для работы с градиентами высших порядков
+    Utilities for work with gradients higher orders
     
     Higher-Order Gradient Computation
     - Second-order gradient computation
@@ -430,30 +430,30 @@ class HigherOrderGradients:
         retain_graph: bool = True
     ) -> List[torch.Tensor]:
         """
-        Вычисляет произведение матрицы Гессе на вектор
+        Computes product matrix Hessian on vector
         
         Args:
-            loss: Функция потерь
-            parameters: Параметры модели
-            vector: Вектор для умножения
-            retain_graph: Сохранять ли граф вычислений
+            loss: Function losses
+            parameters: Parameters model
+            vector: Vector for multiplication
+            retain_graph: Save whether graph computations
             
         Returns:
-            Результат произведения Hv
+            Result products Hv
         """
-        # Первые производные
+        # First derivatives
         grads = torch.autograd.grad(
             loss, parameters, create_graph=True, retain_graph=True
         )
         
-        # Скалярное произведение градиентов с вектором
+        # Scalar product gradients with vector
         grad_vector_product = torch.sum(
             torch.stack([
                 torch.sum(g * v) for g, v in zip(grads, vector)
             ])
         )
         
-        # Вторые производные
+        # Second derivatives
         hv_grads = torch.autograd.grad(
             grad_vector_product, parameters, retain_graph=retain_graph
         )
@@ -466,16 +466,16 @@ class HigherOrderGradients:
         parameters: List[nn.Parameter]
     ) -> List[torch.Tensor]:
         """
-        Аппроксимирует диагональ матрицы Гессе
+        Approximates diagonal matrix Hessian
         
         Args:
-            loss: Функция потерь
-            parameters: Параметры модели
+            loss: Function losses
+            parameters: Parameters model
             
         Returns:
-            Диагональные элементы Гессиана
+            Diagonal elements Hessian
         """
-        # Первые производные
+        # First derivatives
         grads = torch.autograd.grad(
             loss, parameters, create_graph=True, retain_graph=True
         )
@@ -483,7 +483,7 @@ class HigherOrderGradients:
         diagonal_elements = []
         
         for grad in grads:
-            # Вторые производные по диагонали
+            # Second derivatives by diagonal
             grad_sum = torch.sum(grad)
             second_grads = torch.autograd.grad(
                 grad_sum, grad, retain_graph=True
@@ -499,24 +499,24 @@ class HigherOrderGradients:
         parameters: List[nn.Parameter]
     ) -> List[torch.Tensor]:
         """
-        Вычисляет градиент нормы градиента (для анализа сходимости)
+        Computes gradient norms gradient (for analysis convergence)
         
         Args:
-            loss: Функция потерь
-            parameters: Параметры модели
+            loss: Function losses
+            parameters: Parameters model
             
         Returns:
-            Градиент нормы градиента
+            Gradient norms gradient
         """
-        # Первые производные
+        # First derivatives
         grads = torch.autograd.grad(
             loss, parameters, create_graph=True, retain_graph=True
         )
         
-        # Норма градиента
+        # Norm gradient
         grad_norm = torch.norm(torch.cat([g.flatten() for g in grads]))
         
-        # Градиент нормы градиента
+        # Gradient norms gradient
         grad_norm_grads = torch.autograd.grad(
             grad_norm, parameters, retain_graph=True
         )
@@ -526,7 +526,7 @@ class HigherOrderGradients:
 
 class GradientAccumulator:
     """
-    Аккумулятор градиентов для мини-batch обучения
+    Accumulator gradients for mini-batch training
     
     Gradient Accumulation
     - Memory-efficient large batch simulation
@@ -552,26 +552,26 @@ class GradientAccumulator:
         normalize: bool = True
     ) -> bool:
         """
-        Накапливает градиенты
+        Accumulates gradients
         
         Args:
-            model: Модель
-            loss: Функция потерь
-            normalize: Нормализовать ли градиенты на количество шагов
+            model: Model
+            loss: Function losses
+            normalize: Normalize whether gradients on number steps
             
         Returns:
-            True если накопление завершено и можно делать шаг оптимизации
+            True if accumulation completed and possible do step optimization
         """
-        # Нормализуем loss на количество шагов накопления
+        # Normalize loss on number steps accumulation
         if normalize:
             loss = loss / self.accumulation_steps
         
-        # Вычисляем градиенты
+        # Compute gradients
         loss.backward()
         
         self.current_step += 1
         
-        # Проверяем, завершено ли накопление
+        # Check, completed whether accumulation
         if self.current_step >= self.accumulation_steps:
             self.current_step = 0
             return True
@@ -579,19 +579,19 @@ class GradientAccumulator:
         return False
     
     def zero_grad(self, model: nn.Module) -> None:
-        """Обнуляет градиенты после шага оптимизации"""
+        """Resets to zero gradients after step optimization"""
         for param in model.parameters():
             if param.grad is not None:
                 param.grad.zero_()
     
     def get_effective_batch_size(self, base_batch_size: int) -> int:
-        """Возвращает эффективный размер batch"""
+        """Returns effective size batch"""
         return base_batch_size * self.accumulation_steps
 
 
 class GradientProfiler:
     """
-    Профайлер для анализа производительности градиентных вычислений
+    Profiler for analysis performance gradient computations
     
     Performance Profiling
     - Gradient computation timing
@@ -612,42 +612,42 @@ class GradientProfiler:
         **kwargs
     ) -> Any:
         """
-        Профилирует вычисление градиентов
+        Profiles computation gradients
         
         Args:
-            func: Функция для профилирования
-            *args: Аргументы функции
-            **kwargs: Ключевые аргументы функции
+            func: Function for profiling
+            *args: Arguments function
+            **kwargs: Key arguments function
             
         Returns:
-            Результат функции
+            Result function
         """
         import time
         
-        # Замеряем память до выполнения
+        # Measure memory until execution
         if torch.cuda.is_available():
             torch.cuda.synchronize()
             memory_before = torch.cuda.memory_allocated()
         else:
             memory_before = 0
         
-        # Замеряем время
+        # Measure time
         start_time = time.time()
         
-        # Выполняем функцию
+        # Execute function
         result = func(*args, **kwargs)
         
-        # Замеряем время после
+        # Measure time after
         end_time = time.time()
         
-        # Замеряем память после
+        # Measure memory after
         if torch.cuda.is_available():
             torch.cuda.synchronize()
             memory_after = torch.cuda.memory_allocated()
         else:
             memory_after = 0
         
-        # Записываем данные
+        # Record data
         func_name = func.__name__ if hasattr(func, '__name__') else str(func)
         self.timing_data[func_name].append(end_time - start_time)
         self.memory_data[func_name].append(memory_after - memory_before)
@@ -655,7 +655,7 @@ class GradientProfiler:
         return result
     
     def get_profiling_summary(self) -> Dict[str, Any]:
-        """Возвращает сводку профилирования"""
+        """Returns summary profiling"""
         summary = {}
         
         for func_name in self.timing_data.keys():
@@ -684,6 +684,6 @@ class GradientProfiler:
         return summary
     
     def clear_profiling_data(self) -> None:
-        """Очищает данные профилирования"""
+        """Clears data profiling"""
         self.timing_data.clear()
         self.memory_data.clear()

@@ -2,8 +2,8 @@
 Meta-Learning Utilities
 Comprehensive Meta-Learning Support
 
-Набор утилит для мета-обучения: метрики, визуализация, анализ данных,
-и вспомогательные функции для криптовалютного трейдинга.
+Set utilities for meta-training: metrics, visualization, analysis data,
+and helper function for cryptocurrency trading.
 """
 
 import torch
@@ -26,7 +26,7 @@ warnings.filterwarnings('ignore')
 
 class MetaLearningMetrics:
     """
-    Система метрик для мета-обучения
+    System metrics for meta-training
     
     Comprehensive Metrics System
     - Task-specific metrics
@@ -37,7 +37,7 @@ class MetaLearningMetrics:
     def __init__(self, logger: Optional[logging.Logger] = None):
         self.logger = logger or logging.getLogger(__name__)
         
-        # История метрик
+        # History metrics
         self.metrics_history = defaultdict(list)
         self.task_metrics = defaultdict(dict)
         
@@ -49,16 +49,16 @@ class MetaLearningMetrics:
         adaptation_time: float
     ) -> Dict[str, float]:
         """
-        Вычисляет метрики адаптации
+        Computes metrics adaptation
         
         Args:
-            initial_performance: Начальная производительность
-            final_performance: Финальная производительность
-            num_adaptation_steps: Количество шагов адаптации
-            adaptation_time: Время адаптации в секундах
+            initial_performance: Initial performance
+            final_performance: Final performance
+            num_adaptation_steps: Number steps adaptation
+            adaptation_time: Time adaptation in seconds
             
         Returns:
-            Словарь с метриками адаптации
+            Dictionary with metrics adaptation
         """
         improvement = final_performance - initial_performance
         improvement_rate = improvement / num_adaptation_steps if num_adaptation_steps > 0 else 0
@@ -81,16 +81,16 @@ class MetaLearningMetrics:
         num_ways: int
     ) -> Dict[str, float]:
         """
-        Вычисляет метрики few-shot обучения
+        Computes metrics few-shot training
         
         Args:
-            support_performance: Производительность на support set
-            query_performance: Производительность на query set
-            num_shots: Количество примеров на класс
-            num_ways: Количество классов
+            support_performance: Performance on support set
+            query_performance: Performance on query set
+            num_shots: Number examples on class
+            num_ways: Number classes
             
         Returns:
-            Словарь с метриками few-shot обучения
+            Dictionary with metrics few-shot training
         """
         generalization_gap = support_performance - query_performance
         sample_efficiency = query_performance / (num_shots * num_ways)
@@ -112,14 +112,14 @@ class MetaLearningMetrics:
         task_similarities: Optional[Dict[Tuple[str, str], float]] = None
     ) -> Dict[str, float]:
         """
-        Вычисляет метрики кросс-задачного обобщения
+        Computes metrics cross-task-specific generalization
         
         Args:
-            task_performances: Производительность по задачам
-            task_similarities: Схожесть между задачами
+            task_performances: Performance by tasks
+            task_similarities: Similarity between tasks
             
         Returns:
-            Словарь с метриками кросс-задачного обобщения
+            Dictionary with metrics cross-task-specific generalization
         """
         performances = list(task_performances.values())
         
@@ -132,9 +132,9 @@ class MetaLearningMetrics:
             'coefficient_of_variation': np.std(performances) / np.mean(performances) if np.mean(performances) != 0 else 0
         }
         
-        # Если есть информация о схожести задач
+        # If exists information about similarity tasks
         if task_similarities:
-            # Корреляция между схожестью задач и различием в производительности
+            # Correlation between similarity tasks and difference in performance
             task_names = list(task_performances.keys())
             performance_diffs = []
             similarities = []
@@ -162,16 +162,16 @@ class MetaLearningMetrics:
         final_performances: List[float]
     ) -> Dict[str, float]:
         """
-        Вычисляет эффективность мета-обучения
+        Computes efficiency meta-training
         
         Args:
-            meta_training_time: Время мета-обучения
-            meta_training_episodes: Количество эпизодов мета-обучения
-            adaptation_times: Времена адаптации для новых задач
-            final_performances: Финальные производительности
+            meta_training_time: Time meta-training
+            meta_training_episodes: Number episodes meta-training
+            adaptation_times: Times adaptation for new tasks
+            final_performances: Final performance
             
         Returns:
-            Словарь с метриками эффективности
+            Dictionary with metrics efficiency
         """
         avg_adaptation_time = np.mean(adaptation_times) if adaptation_times else 0
         avg_performance = np.mean(final_performances) if final_performances else 0
@@ -188,12 +188,12 @@ class MetaLearningMetrics:
     
     def track_metric(self, metric_name: str, value: float, task_id: Optional[str] = None) -> None:
         """
-        Отслеживает метрику
+        Tracks metric
         
         Args:
-            metric_name: Имя метрики
-            value: Значение метрики
-            task_id: ID задачи (опционально)
+            metric_name: Name metrics
+            value: Value metrics
+            task_id: ID tasks (optionally)
         """
         self.metrics_history[metric_name].append({
             'value': value,
@@ -206,14 +206,14 @@ class MetaLearningMetrics:
     
     def get_metric_summary(self, metric_name: str, window: Optional[int] = None) -> Dict[str, float]:
         """
-        Возвращает сводку по метрике
+        Returns summary by metric
         
         Args:
-            metric_name: Имя метрики
-            window: Размер окна для анализа (последние N значений)
+            metric_name: Name metrics
+            window: Size window for analysis (recent N values)
             
         Returns:
-            Сводка по метрике
+            Summary by metric
         """
         if metric_name not in self.metrics_history:
             return {}
@@ -237,19 +237,19 @@ class MetaLearningMetrics:
         }
     
     def _compute_trend(self, values: List[float]) -> float:
-        """Вычисляет тренд значений (положительный = улучшение)"""
+        """Computes trend values (positive = improvement)"""
         if len(values) < 2:
             return 0
         
         x = np.arange(len(values))
         y = np.array(values)
         
-        # Линейная регрессия для определения тренда
+        # Linear regression for determination trend
         slope = np.polyfit(x, y, 1)[0]
         return slope
     
     def export_metrics(self, filepath: str) -> None:
-        """Экспортирует метрики в файл"""
+        """Exports metrics in file"""
         export_data = {
             'metrics_history': dict(self.metrics_history),
             'task_metrics': dict(self.task_metrics),
@@ -262,7 +262,7 @@ class MetaLearningMetrics:
         self.logger.info(f"Metrics exported to {filepath}")
     
     def import_metrics(self, filepath: str) -> None:
-        """Импортирует метрики из файла"""
+        """Imports metrics from file"""
         with open(filepath, 'r') as f:
             import_data = json.load(f)
         
@@ -274,7 +274,7 @@ class MetaLearningMetrics:
 
 class DataAnalyzer:
     """
-    Анализатор данных для мета-обучения
+    Analyzer data for meta-training
     
     Data Analysis Pipeline
     - Task difficulty estimation
@@ -293,65 +293,65 @@ class DataAnalyzer:
         query_labels: torch.Tensor
     ) -> Dict[str, float]:
         """
-        Анализирует сложность задачи
+        Analyzes complexity tasks
         
         Args:
-            support_data: Support данные
-            support_labels: Support метки
-            query_data: Query данные
-            query_labels: Query метки
+            support_data: Support data
+            support_labels: Support labels
+            query_data: Query data
+            query_labels: Query labels
             
         Returns:
-            Словарь с оценками сложности
+            Dictionary with estimates complexity
         """
         difficulty_metrics = {}
         
-        # Конвертируем в numpy для анализа
+        # Convert in numpy for analysis
         support_data_np = support_data.detach().cpu().numpy()
         support_labels_np = support_labels.detach().cpu().numpy()
         query_data_np = query_data.detach().cpu().numpy()
         query_labels_np = query_labels.detach().cpu().numpy()
         
-        # 1. Размерность задачи
+        # 1. Dimensionality tasks
         difficulty_metrics['feature_dimensionality'] = support_data_np.shape[1] if len(support_data_np.shape) > 1 else 1
         difficulty_metrics['sample_size_ratio'] = len(support_data_np) / len(query_data_np) if len(query_data_np) > 0 else 0
         
-        # 2. Сложность распределения данных
+        # 2. Complexity distribution data
         if len(support_data_np.shape) > 1:
-            # Оценка сложности через PCA
+            # Estimation complexity through PCA
             try:
                 from sklearn.decomposition import PCA
                 pca = PCA()
                 pca.fit(support_data_np)
                 explained_variance_ratio = pca.explained_variance_ratio_
                 
-                # Интринсивная размерность (90% дисперсии)
+                # Intrinsic dimensionality (90% variance)
                 cumulative_variance = np.cumsum(explained_variance_ratio)
                 intrinsic_dim = np.argmax(cumulative_variance >= 0.9) + 1
                 difficulty_metrics['intrinsic_dimensionality'] = intrinsic_dim
-                difficulty_metrics['data_complexity'] = 1.0 - explained_variance_ratio[0]  # Сложность = 1 - доля первой компоненты
+                difficulty_metrics['data_complexity'] = 1.0 - explained_variance_ratio[0]  # Complexity = 1 - share first components
             except:
                 difficulty_metrics['intrinsic_dimensionality'] = difficulty_metrics['feature_dimensionality']
                 difficulty_metrics['data_complexity'] = 0.5
         
-        # 3. Сложность классификации/регрессии
-        if len(np.unique(support_labels_np)) <= 10:  # Классификация
-            # Баланс классов
+        # 3. Complexity classification/regression
+        if len(np.unique(support_labels_np)) <= 10:  # Classification
+            # Balance classes
             unique_labels, counts = np.unique(support_labels_np, return_counts=True)
             class_balance = np.min(counts) / np.max(counts) if len(counts) > 1 else 1.0
             difficulty_metrics['class_imbalance'] = 1.0 - class_balance
             
-            # Количество классов
+            # Number classes
             difficulty_metrics['num_classes'] = len(unique_labels)
-            difficulty_metrics['multiclass_complexity'] = len(unique_labels) / 10.0  # Нормализуем
+            difficulty_metrics['multiclass_complexity'] = len(unique_labels) / 10.0  # Normalize
             
-        else:  # Регрессия
-            # Вариабельность целевой переменной
+        else:  # Regression
+            # Variability target variable
             target_std = np.std(support_labels_np)
             target_range = np.max(support_labels_np) - np.min(support_labels_np)
             difficulty_metrics['target_variability'] = target_std / (target_range + 1e-8)
             
-            # Нелинейность (корреляция с первой главной компонентой)
+            # Nonlinearity (correlation with first main component)
             if len(support_data_np.shape) > 1 and support_data_np.shape[1] > 1:
                 try:
                     first_pc = PCA(n_components=1).fit_transform(support_data_np).flatten()
@@ -360,13 +360,13 @@ class DataAnalyzer:
                 except:
                     difficulty_metrics['nonlinearity'] = 0.5
         
-        # 4. Схожесть support/query распределений
+        # 4. Similarity support/query distributions
         support_mean = np.mean(support_data_np, axis=0)
         query_mean = np.mean(query_data_np, axis=0)
         distribution_shift = np.linalg.norm(support_mean - query_mean)
         difficulty_metrics['distribution_shift'] = distribution_shift
         
-        # 5. Общая оценка сложности (комбинированная)
+        # 5. Total estimation complexity (combined)
         complexity_factors = [
             difficulty_metrics.get('data_complexity', 0.5),
             difficulty_metrics.get('class_imbalance', 0) + difficulty_metrics.get('target_variability', 0),
@@ -384,25 +384,25 @@ class DataAnalyzer:
         labels: torch.Tensor
     ) -> Dict[str, float]:
         """
-        Оценивает качество данных
+        Evaluates quality data
         
         Args:
-            data: Данные для анализа
-            labels: Метки
+            data: Data for analysis
+            labels: Labels
             
         Returns:
-            Словарь с оценками качества
+            Dictionary with estimates quality
         """
         quality_metrics = {}
         
         data_np = data.detach().cpu().numpy()
         labels_np = labels.detach().cpu().numpy()
         
-        # 1. Пропущенные значения
+        # 1. Missing values
         nan_ratio = np.sum(np.isnan(data_np)) / data_np.size
         quality_metrics['missing_data_ratio'] = nan_ratio
         
-        # 2. Выбросы (IQR метод)
+        # 2. Outliers (IQR method)
         if len(data_np.shape) > 1:
             outlier_ratios = []
             for col in range(data_np.shape[1]):
@@ -417,7 +417,7 @@ class DataAnalyzer:
         else:
             quality_metrics['outlier_ratio'] = 0.0
         
-        # 3. Дубликаты
+        # 3. Duplicates
         if len(data_np.shape) > 1:
             unique_rows = len(np.unique(data_np, axis=0))
             total_rows = len(data_np)
@@ -425,23 +425,23 @@ class DataAnalyzer:
         else:
             quality_metrics['duplicate_ratio'] = 0.0
         
-        # 4. Консистентность меток
+        # 4. Consistency labels
         if len(np.unique(labels_np)) > 1:
-            # Для классификации: проверяем сбалансированность
+            # For classification: check balance
             unique_labels, counts = np.unique(labels_np, return_counts=True)
             balance_score = np.min(counts) / np.max(counts)
             quality_metrics['label_consistency'] = balance_score
         else:
             quality_metrics['label_consistency'] = 1.0
         
-        # 5. Шум в данных (оценка через локальную вариабельность)
+        # 5. Noise in data (estimation through local variability)
         if len(data_np) > 5 and len(data_np.shape) > 1:
             try:
                 from sklearn.neighbors import NearestNeighbors
                 nn = NearestNeighbors(n_neighbors=min(5, len(data_np)))
                 nn.fit(data_np)
                 distances, _ = nn.kneighbors(data_np)
-                avg_distance = np.mean(distances[:, 1:])  # Исключаем расстояние до себя
+                avg_distance = np.mean(distances[:, 1:])  # Exclude distance until itself
                 noise_estimate = avg_distance / np.std(data_np)
                 quality_metrics['noise_level'] = min(1.0, noise_estimate)
             except:
@@ -449,7 +449,7 @@ class DataAnalyzer:
         else:
             quality_metrics['noise_level'] = 0.0
         
-        # 6. Общая оценка качества
+        # 6. Total estimation quality
         quality_score = 1.0 - np.mean([
             quality_metrics['missing_data_ratio'],
             quality_metrics['outlier_ratio'],
@@ -469,15 +469,15 @@ class DataAnalyzer:
         method: str = "variance"
     ) -> Dict[str, np.ndarray]:
         """
-        Вычисляет важность признаков
+        Computes importance features
         
         Args:
-            data: Данные
-            labels: Метки
-            method: Метод вычисления (variance, correlation, mutual_info)
+            data: Data
+            labels: Labels
+            method: Method computations (variance, correlation, mutual_info)
             
         Returns:
-            Словарь с важностью признаков
+            Dictionary with importance features
         """
         data_np = data.detach().cpu().numpy()
         labels_np = labels.detach().cpu().numpy()
@@ -488,12 +488,12 @@ class DataAnalyzer:
         importance_scores = np.zeros(data_np.shape[1])
         
         if method == "variance":
-            # Важность на основе дисперсии
+            # Importance on basis variance
             importance_scores = np.var(data_np, axis=0)
             importance_scores = importance_scores / (np.sum(importance_scores) + 1e-8)
             
         elif method == "correlation":
-            # Важность на основе корреляции с целевой переменной
+            # Importance on basis correlation with target variable
             for i in range(data_np.shape[1]):
                 correlation = np.corrcoef(data_np[:, i], labels_np)[0, 1]
                 importance_scores[i] = abs(correlation) if not np.isnan(correlation) else 0
@@ -501,30 +501,30 @@ class DataAnalyzer:
             importance_scores = importance_scores / (np.sum(importance_scores) + 1e-8)
             
         elif method == "mutual_info":
-            # Важность на основе взаимной информации
+            # Importance on basis mutual information
             try:
                 from sklearn.feature_selection import mutual_info_regression, mutual_info_classif
                 
-                if len(np.unique(labels_np)) <= 10:  # Классификация
+                if len(np.unique(labels_np)) <= 10:  # Classification
                     importance_scores = mutual_info_classif(data_np, labels_np)
-                else:  # Регрессия
+                else:  # Regression
                     importance_scores = mutual_info_regression(data_np, labels_np)
                 
                 importance_scores = importance_scores / (np.sum(importance_scores) + 1e-8)
             except:
-                # Fallback к методу корреляции
+                # Fallback to method correlation
                 return self.compute_feature_importance(data, labels, "correlation")
         
         return {
             'importance': importance_scores,
             'method': method,
-            'top_features': np.argsort(importance_scores)[::-1][:10]  # Топ 10 признаков
+            'top_features': np.argsort(importance_scores)[::-1][:10]  # Top 10 features
         }
 
 
 class Visualizer:
     """
-    Система визуализации для мета-обучения
+    System visualization for meta-training
     
     Comprehensive Visualization
     - Training progress visualization
@@ -541,7 +541,7 @@ class Visualizer:
         self.save_dir.mkdir(parents=True, exist_ok=True)
         self.logger = logger or logging.getLogger(__name__)
         
-        # Настройка стиля
+        # Configuration style
         plt.style.use('default')
         sns.set_palette("husl")
     
@@ -551,16 +551,16 @@ class Visualizer:
         save_name: str = "training_progress.png"
     ) -> None:
         """
-        Визуализирует прогресс обучения
+        Visualizes progress training
         
         Args:
-            metrics_history: История метрик
-            save_name: Имя файла для сохранения
+            metrics_history: History metrics
+            save_name: Name file for saving
         """
         fig, axes = plt.subplots(2, 2, figsize=(15, 10))
         fig.suptitle('Meta-Learning Training Progress', fontsize=16)
         
-        # Основные метрики
+        # Main metrics
         main_metrics = ['loss', 'accuracy', 'meta_loss', 'adaptation_loss']
         
         for i, metric_name in enumerate(main_metrics):
@@ -570,10 +570,10 @@ class Visualizer:
                 values = [entry['value'] for entry in metrics_history[metric_name]]
                 timestamps = [entry['timestamp'] for entry in metrics_history[metric_name]]
                 
-                # Конвертируем timestamps в относительное время
+                # Convert timestamps in relative time
                 if timestamps:
                     start_time = timestamps[0]
-                    relative_times = [(t - start_time) / 3600 for t in timestamps]  # В часах
+                    relative_times = [(t - start_time) / 3600 for t in timestamps]  # IN hours
                     
                     ax.plot(relative_times, values, marker='o', markersize=3)
                     ax.set_title(f'{metric_name.replace("_", " ").title()}')
@@ -581,7 +581,7 @@ class Visualizer:
                     ax.set_ylabel(metric_name)
                     ax.grid(True, alpha=0.3)
                     
-                    # Добавляем тренд
+                    # Add trend
                     if len(values) > 1:
                         z = np.polyfit(relative_times, values, 1)
                         p = np.poly1d(z)
@@ -605,20 +605,20 @@ class Visualizer:
         save_name: str = "few_shot_performance.png"
     ) -> None:
         """
-        Визуализирует производительность few-shot обучения
+        Visualizes performance few-shot training
         
         Args:
-            performance_data: Данные производительности по настройкам
-            save_name: Имя файла для сохранения
+            performance_data: Data performance by settings
+            save_name: Name file for saving
         """
-        # Извлекаем данные для графика
+        # Extract data for chart
         shots = []
         accuracies = []
         settings = []
         
         for setting_name, metrics in performance_data.items():
             if 'shot' in setting_name and 'accuracy' in metrics:
-                # Извлекаем количество shots из имени настройки
+                # Extract number shots from name settings
                 shot_count = int(setting_name.split('shot')[0].split('_')[-1])
                 shots.append(shot_count)
                 accuracies.append(metrics['accuracy']['mean'])
@@ -628,11 +628,11 @@ class Visualizer:
             self.logger.warning("No few-shot data found for visualization")
             return
         
-        # Создаем график
+        # Create chart
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6))
         fig.suptitle('Few-Shot Learning Performance', fontsize=16)
         
-        # График 1: Производительность vs количество shots
+        # Chart 1: Performance vs number shots
         unique_shots = sorted(list(set(shots)))
         mean_accuracies = []
         std_accuracies = []
@@ -649,12 +649,12 @@ class Visualizer:
         ax1.set_title('Performance vs Number of Shots')
         ax1.grid(True, alpha=0.3)
         
-        # График 2: Heatmap всех настроек
+        # Chart 2: Heatmap all settings
         if len(performance_data) > 1:
             setting_names = list(performance_data.keys())
             metric_names = ['accuracy', 'precision', 'recall', 'f1']
             
-            # Создаем матрицу данных
+            # Create matrix data
             data_matrix = []
             available_metrics = []
             
@@ -692,11 +692,11 @@ class Visualizer:
         save_name: str = "model_comparison.png"
     ) -> None:
         """
-        Визуализирует сравнение моделей
+        Visualizes comparison models
         
         Args:
-            model_results: Результаты различных моделей
-            save_name: Имя файла для сохранения
+            model_results: Results various models
+            save_name: Name file for saving
         """
         if len(model_results) < 2:
             self.logger.warning("Need at least 2 models for comparison")
@@ -705,15 +705,15 @@ class Visualizer:
         fig, axes = plt.subplots(2, 2, figsize=(15, 10))
         fig.suptitle('Model Comparison', fontsize=16)
         
-        # Извлекаем данные для сравнения
+        # Extract data for comparison
         model_names = list(model_results.keys())
         
-        # График 1: Средняя производительность по моделям
+        # Chart 1: Average performance by models
         ax1 = axes[0, 0]
         avg_performances = []
         
         for model_name in model_names:
-            # Берем среднюю accuracy по всем настройкам
+            # Take average accuracy by all settings
             accuracies = []
             for setting_results in model_results[model_name]['aggregated_results'].values():
                 if 'accuracy' in setting_results:
@@ -726,12 +726,12 @@ class Visualizer:
         ax1.set_ylabel('Accuracy')
         ax1.set_xticklabels(model_names, rotation=45)
         
-        # Добавляем значения на столбцы
+        # Add values on columns
         for bar, perf in zip(bars, avg_performances):
             ax1.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.01,
                     f'{perf:.3f}', ha='center', va='bottom')
         
-        # График 2: Время обучения (если доступно)
+        # Chart 2: Time training (if available)
         ax2 = axes[0, 1]
         training_times = []
         
@@ -754,7 +754,7 @@ class Visualizer:
                     transform=ax2.transAxes)
             ax2.set_title('Training Time')
         
-        # График 3: Scatter plot производительность vs время
+        # Chart 3: Scatter plot performance vs time
         ax3 = axes[1, 0]
         if any(t > 0 for t in training_times):
             scatter = ax3.scatter(training_times, avg_performances, s=100, alpha=0.7)
@@ -773,7 +773,7 @@ class Visualizer:
                     transform=ax3.transAxes)
             ax3.set_title('Performance vs Training Time')
         
-        # График 4: Radar chart сравнения
+        # Chart 4: Radar chart comparison
         ax4 = axes[1, 1]
         self._create_radar_chart(model_results, ax4)
         
@@ -788,15 +788,15 @@ class Visualizer:
         model_results: Dict[str, Dict[str, Any]],
         ax: plt.Axes
     ) -> None:
-        """Создает radar chart для сравнения моделей"""
+        """Creates radar chart for comparison models"""
         try:
-            # Извлекаем метрики для сравнения
+            # Extract metrics for comparison
             metrics = ['accuracy', 'precision', 'recall', 'f1']
             model_names = list(model_results.keys())
             
-            # Подготавливаем данные
+            # Prepare data
             angles = np.linspace(0, 2 * np.pi, len(metrics), endpoint=False).tolist()
-            angles += angles[:1]  # Замыкаем круг
+            angles += angles[:1]  # Close circle
             
             ax.set_theta_offset(np.pi / 2)
             ax.set_theta_direction(-1)
@@ -805,7 +805,7 @@ class Visualizer:
             for model_name in model_names:
                 values = []
                 for metric in metrics:
-                    # Берем среднее значение по всем настройкам
+                    # Take average value by all settings
                     metric_values = []
                     for setting_results in model_results[model_name]['aggregated_results'].values():
                         if metric in setting_results:
@@ -814,7 +814,7 @@ class Visualizer:
                     avg_value = np.mean(metric_values) if metric_values else 0
                     values.append(avg_value)
                 
-                values += values[:1]  # Замыкаем круг
+                values += values[:1]  # Close circle
                 
                 ax.plot(angles, values, marker='o', label=model_name)
                 ax.fill(angles, values, alpha=0.1)
@@ -832,7 +832,7 @@ class Visualizer:
 
 class ModelSerializer:
     """
-    Сериализатор для сохранения и загрузки мета-моделей
+    Serializer for saving and loading meta-models
     
     Model Persistence
     - Model checkpointing
@@ -858,17 +858,17 @@ class ModelSerializer:
         version: Optional[str] = None
     ) -> str:
         """
-        Сохраняет модель с конфигурацией и метаданными
+        Saves model with configuration and metadata
         
         Args:
-            model: Модель для сохранения
-            model_name: Имя модели
-            config: Конфигурация модели
-            metadata: Дополнительные метаданные
-            version: Версия модели
+            model: Model for saving
+            model_name: Name model
+            config: Configuration model
+            metadata: Additional metadata
+            version: Version model
             
         Returns:
-            Путь к сохраненному файлу
+            Path to saved file
         """
         if version is None:
             version = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -888,7 +888,7 @@ class ModelSerializer:
         
         torch.save(checkpoint, filepath)
         
-        # Сохраняем также конфигурацию отдельно для удобства
+        # Save also configuration separately for convenience
         config_filename = f"{model_name}_v{version}_config.json"
         config_filepath = self.save_dir / config_filename
         
@@ -909,23 +909,23 @@ class ModelSerializer:
         device: Optional[torch.device] = None
     ) -> Tuple[nn.Module, Dict[str, Any]]:
         """
-        Загружает модель из checkpoint
+        Loads model from checkpoint
         
         Args:
-            filepath: Путь к checkpoint файлу
-            model_class: Класс модели
-            device: Устройство для загрузки
+            filepath: Path to checkpoint file
+            model_class: Class model
+            device: Device for loading
             
         Returns:
-            Tuple из модели и метаданных
+            Tuple from model and metadata
         """
         checkpoint = torch.load(filepath, map_location=device)
         
-        # Создаем модель
+        # Create model
         config = checkpoint['config']
         model = model_class(**config)
         
-        # Загружаем веса
+        # Load weights
         model.load_state_dict(checkpoint['model_state_dict'])
         
         if device:
@@ -942,7 +942,7 @@ class ModelSerializer:
         return model, metadata
     
     def list_saved_models(self) -> List[Dict[str, Any]]:
-        """Возвращает список сохраненных моделей"""
+        """Returns list saved models"""
         models = []
         
         for filepath in self.save_dir.glob("*.pt"):
@@ -959,7 +959,7 @@ class ModelSerializer:
             except Exception as e:
                 self.logger.warning(f"Could not load model info from {filepath}: {e}")
         
-        # Сортируем по времени сохранения
+        # Sort by time saving
         models.sort(key=lambda x: x.get('save_timestamp', 0), reverse=True)
         
         return models

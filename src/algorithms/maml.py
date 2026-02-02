@@ -2,8 +2,8 @@
 MAML (Model-Agnostic Meta-Learning) Implementation
 Scalable Meta-Learning for Crypto Trading
 
-Реализация алгоритма MAML для быстрой адаптации к новым криптовалютным рынкам.
-Основана на принципах gradient-based meta-learning с поддержкой высших производных.
+Implementation algorithm MAML for fast adaptation to new cryptocurrency markets.
+Is based on principles gradient-based meta-learning with support higher derivatives.
 """
 
 import torch
@@ -24,28 +24,28 @@ from ..models.meta_model import MetaModel
 
 @dataclass
 class MAMLConfig:
-    """Конфигурация for MAML algorithm"""
+    """Configuration for MAML algorithm"""
     
-    # Основные параметры
-    inner_lr: float = 0.01  # Скорость обучения на внутреннем цикле
-    outer_lr: float = 0.001  # Скорость обучения на внешнем цикле
-    num_inner_steps: int = 5  # Количество шагов градиентного спуска на задаче
+    # Main parameters
+    inner_lr: float = 0.01  # Speed training on inner loop
+    outer_lr: float = 0.001  # Speed training on external loop
+    num_inner_steps: int = 5  # Number steps gradient descent on task
     
-    # Параметры задач
-    num_support: int = 5  # Количество примеров в support set
-    num_query: int = 15  # Количество примеров в query set
+    # Parameters tasks
+    num_support: int = 5  # Number examples in support set
+    num_query: int = 15  # Number examples in query set
     
-    # Регуляризация
-    first_order: bool = False  # Использовать ли первый порядок (Reptile-like)
-    allow_unused: bool = True  # Разрешить неиспользуемые параметры
-    allow_nograd: bool = True  # Разрешить параметры без градиента
+    # Regularization
+    first_order: bool = False  # Use whether first order (Reptile-like)
+    allow_unused: bool = True  # Resolve unused parameters
+    allow_nograd: bool = True  # Resolve parameters without gradient
     
-    # Оптимизация
-    grad_clip: Optional[float] = 1.0  # Обрезка градиентов
-    weight_decay: float = 0.0001  # L2 регуляризация
+    # Optimization
+    grad_clip: Optional[float] = 1.0  # Trimming gradients
+    weight_decay: float = 0.0001  # L2 regularization
     
-    # Мониторинг
-    log_interval: int = 10  # Интервал логирования
+    # Monitoring
+    log_interval: int = 10  # Interval logging
     device: str = "cuda" if torch.cuda.is_available() else "cpu"
 
 
@@ -67,29 +67,29 @@ class MAML:
         logger: Optional[logging.Logger] = None
     ):
         """
-        Инициализация MAML
+        Initialization MAML
         
         Args:
-            model: Базовая модель для мета-обучения
-            config: Конфигурация MAML
-            logger: Логгер для мониторинга
+            model: Base model for meta-training
+            config: Configuration MAML
+            logger: Logger for monitoring
         """
         self.model = model.to(config.device)
         self.config = config
         self.logger = logger or logging.getLogger(__name__)
         
-        # Оптимизатор для внешнего цикла
+        # Optimizer for outer loop
         self.meta_optimizer = optim.Adam(
             self.model.parameters(),
             lr=config.outer_lr,
             weight_decay=config.weight_decay
         )
         
-        # Утилиты
+        # Utilities
         self.gradient_manager = GradientManager()
         self.metrics = MetaLearningMetrics()
         
-        # Состояние
+        # State
         self.global_step = 0
         self.best_meta_loss = float('inf')
         
@@ -103,18 +103,18 @@ class MAML:
         create_graph: bool = True
     ) -> Tuple[OrderedDict, List[float]]:
         """
-        Внутренний цикл обучения на конкретной задаче
+        Inner loop training on specific task
         
         Args:
-            support_data: Данные для обучения на задаче
-            support_labels: Метки для обучения
-            model_state: Текущее состояние модели
-            create_graph: Создавать ли граф вычислений для второй производной
+            support_data: Data for training on task
+            support_labels: Labels for training
+            model_state: Current state model
+            create_graph: Create whether graph computations for second derivative
             
         Returns:
-            Tuple из адаптированных параметров и losses
+            Tuple from adapted parameters and losses
         """
-        # Создаем копию модели для внутреннего цикла
+        # Create copy model for inner loop
         adapted_params = OrderedDict()
         for name, param in model_state.items():
             adapted_params[name] = param.clone()
@@ -122,16 +122,16 @@ class MAML:
         inner_losses = []
         
         for step in range(self.config.num_inner_steps):
-            # Forward pass с текущими параметрами
+            # Forward pass with current parameters
             predictions = self._forward_with_params(
                 support_data, adapted_params
             )
             
-            # Вычисляем loss
+            # Compute loss
             loss = nn.functional.mse_loss(predictions, support_labels)
             inner_losses.append(loss.item())
             
-            # Вычисляем градиенты
+            # Compute gradients
             grads = torch.autograd.grad(
                 loss,
                 adapted_params.values(),
@@ -139,7 +139,7 @@ class MAML:
                 allow_unused=self.config.allow_unused
             )
             
-            # Обновляем параметры
+            # Update parameters
             for (name, param), grad in zip(adapted_params.items(), grads):
                 if grad is not None:
                     adapted_params[name] = param - self.config.inner_lr * grad
@@ -152,14 +152,14 @@ class MAML:
         params: OrderedDict
     ) -> torch.Tensor:
         """
-        Forward pass с заданными параметрами
+        Forward pass with specified parameters
         
         Args:
-            data: Входные данные
-            params: Параметры модели
+            data: Input data
+            params: Parameters model
             
         Returns:
-            Предсказания модели
+            Predictions model
         """
         # Temporary replace model parameters
         original_params = OrderedDict()
@@ -182,13 +182,13 @@ class MAML:
         task_batch: List[Dict[str, torch.Tensor]]
     ) -> Dict[str, float]:
         """
-        Один шаг мета-обучения на batch задач
+        One step meta-training on batch tasks
         
         Args:
-            task_batch: Batch задач с support/query sets
+            task_batch: Batch tasks with support/query sets
             
         Returns:
-            Словарь с метриками
+            Dictionary with metrics
         """
         self.meta_optimizer.zero_grad()
         
@@ -196,7 +196,7 @@ class MAML:
         adaptation_losses = []
         query_accuracies = []
         
-        # Получаем текущие параметры модели
+        # Retrieve current parameters model
         model_state = OrderedDict(self.model.named_parameters())
         
         for task in task_batch:
@@ -205,7 +205,7 @@ class MAML:
             query_data = task['query_data'].to(self.config.device)
             query_labels = task['query_labels'].to(self.config.device)
             
-            # Внутренний цикл - адаптация к задаче
+            # Inner loop - adaptation to task
             adapted_params, inner_losses = self.inner_loop(
                 support_data,
                 support_labels,
@@ -213,21 +213,21 @@ class MAML:
                 create_graph=not self.config.first_order
             )
             
-            # Query loss для внешнего цикла
+            # Query loss for outer loop
             query_predictions = self._forward_with_params(
                 query_data, adapted_params
             )
             meta_loss = nn.functional.mse_loss(query_predictions, query_labels)
             meta_losses.append(meta_loss)
             
-            # Метрики
+            # Metrics
             adaptation_losses.extend(inner_losses)
             query_accuracy = self._compute_accuracy(
                 query_predictions, query_labels
             )
             query_accuracies.append(query_accuracy)
         
-        # Агрегируем мета-loss
+        # Aggregate meta-loss
         total_meta_loss = torch.stack(meta_losses).mean()
         
         # Backward pass
@@ -239,10 +239,10 @@ class MAML:
                 self.model.parameters(), self.config.grad_clip
             )
         
-        # Обновляем мета-параметры
+        # Update meta-parameters
         self.meta_optimizer.step()
         
-        # Собираем метрики
+        # Collect metrics
         metrics = {
             'meta_loss': total_meta_loss.item(),
             'adaptation_loss': np.mean(adaptation_losses),
@@ -260,13 +260,13 @@ class MAML:
         validation_tasks: List[Dict[str, torch.Tensor]]
     ) -> Dict[str, float]:
         """
-        Валидация мета-модели на validation tasks
+        Validation meta-model on validation tasks
         
         Args:
-            validation_tasks: Задачи для валидации
+            validation_tasks: Tasks for validation
             
         Returns:
-            Словарь с метриками валидации
+            Dictionary with metrics validation
         """
         self.model.eval()
         
@@ -279,7 +279,7 @@ class MAML:
                 query_data = task['query_data'].to(self.config.device)
                 query_labels = task['query_labels'].to(self.config.device)
                 
-                # Адаптация без градиентов для внешнего цикла
+                # Adaptation without gradients for outer loop
                 adapted_params, adaptation_losses = self.inner_loop(
                     support_data,
                     support_labels,
@@ -287,7 +287,7 @@ class MAML:
                     create_graph=False
                 )
                 
-                # Валидация на query set
+                # Validation on query set
                 query_predictions = self._forward_with_params(
                     query_data, adapted_params
                 )
@@ -307,7 +307,7 @@ class MAML:
         
         self.model.train()
         
-        # Агрегируем метрики
+        # Aggregate metrics
         avg_metrics = {}
         for key in all_metrics[0].keys():
             avg_metrics[f'val_{key}'] = np.mean([m[key] for m in all_metrics])
@@ -321,32 +321,32 @@ class MAML:
         num_adaptation_steps: Optional[int] = None
     ) -> nn.Module:
         """
-        Быстрая адаптация к новой задаче (few-shot learning)
+        Fast adaptation to new task (few-shot learning)
         
         Args:
-            support_data: Данные для адаптации
-            support_labels: Метки для адаптации
-            num_adaptation_steps: Количество шагов адаптации
+            support_data: Data for adaptation
+            support_labels: Labels for adaptation
+            num_adaptation_steps: Number steps adaptation
             
         Returns:
-            Адаптированная модель
+            Adapted model
         """
         if num_adaptation_steps is None:
             num_adaptation_steps = self.config.num_inner_steps
         
-        # Создаем копию модели для адаптации
+        # Create copy model for adaptation
         adapted_model = type(self.model)(
             **self.model.config.__dict__ if hasattr(self.model, 'config') else {}
         ).to(self.config.device)
         adapted_model.load_state_dict(self.model.state_dict())
         
-        # Optimizer для адаптации
+        # Optimizer for adaptation
         adaptation_optimizer = optim.SGD(
             adapted_model.parameters(),
             lr=self.config.inner_lr
         )
         
-        # Адаптация
+        # Adaptation
         adapted_model.train()
         for step in range(num_adaptation_steps):
             adaptation_optimizer.zero_grad()
@@ -369,15 +369,15 @@ class MAML:
         threshold: float = 0.1
     ) -> float:
         """
-        Вычисляет accuracy для регрессии (процент предсказаний в пределах threshold)
+        Computes accuracy for regression (percent predictions in within threshold)
         
         Args:
-            predictions: Предсказания модели
-            labels: Истинные метки
-            threshold: Порог для считания предсказания правильным
+            predictions: Predictions model
+            labels: True labels
+            threshold: Threshold for counting predictions correct
             
         Returns:
-            Accuracy значение
+            Accuracy value
         """
         with torch.no_grad():
             errors = torch.abs(predictions - labels)
@@ -385,7 +385,7 @@ class MAML:
             return correct.mean().item()
     
     def save_checkpoint(self, filepath: str) -> None:
-        """Сохранение checkpoint модели"""
+        """Saving checkpoint model"""
         checkpoint = {
             'model_state_dict': self.model.state_dict(),
             'optimizer_state_dict': self.meta_optimizer.state_dict(),
@@ -397,7 +397,7 @@ class MAML:
         self.logger.info(f"Checkpoint saved to {filepath}")
     
     def load_checkpoint(self, filepath: str) -> None:
-        """Загрузка checkpoint модели"""
+        """Loading checkpoint model"""
         checkpoint = torch.load(filepath, map_location=self.config.device)
         
         self.model.load_state_dict(checkpoint['model_state_dict'])
@@ -410,7 +410,7 @@ class MAML:
 
 class MAMLTrainer:
     """
-    Trainer class для MAML с enterprise patterns
+    Trainer class for MAML with enterprise patterns
     
     Features:
     - Automated checkpoint management
@@ -433,7 +433,7 @@ class MAMLTrainer:
         self.config = config
         self.logger = logger or logging.getLogger(__name__)
         
-        # Scheduler для learning rate
+        # Scheduler for learning rate
         self.scheduler = optim.lr_scheduler.ReduceLROnPlateau(
             maml.meta_optimizer,
             mode='min',
@@ -451,15 +451,15 @@ class MAMLTrainer:
         early_stopping_patience: int = 20
     ) -> Dict[str, List[float]]:
         """
-        Основной цикл обучения MAML
+        Main loop training MAML
         
         Args:
-            num_epochs: Количество эпох
-            save_dir: Директория для сохранения checkpoint'ов
-            early_stopping_patience: Терпение для early stopping
+            num_epochs: Number epochs
+            save_dir: Directory for saving checkpoint'
+            early_stopping_patience: Patience for early stopping
             
         Returns:
-            История метрик обучения
+            History metrics training
         """
         best_val_loss = float('inf')
         patience_counter = 0
@@ -500,27 +500,27 @@ class MAMLTrainer:
         return self._compile_metrics_history()
     
     def _train_epoch(self) -> Dict[str, float]:
-        """Обучение одной эпохи"""
+        """Training one epoch"""
         epoch_metrics = []
         
         for batch in tqdm(self.train_loader, desc="Training"):
             metrics = self.maml.meta_train_step(batch)
             epoch_metrics.append(metrics)
         
-        # Агрегируем метрики эпохи
+        # Aggregate metrics epoch
         return {
             key: np.mean([m[key] for m in epoch_metrics])
             for key in epoch_metrics[0].keys()
         }
     
     def _log_metrics(self, epoch: int, metrics: Dict[str, float]) -> None:
-        """Логирование метрик"""
+        """Logging metrics"""
         self.logger.info(f"Epoch {epoch}:")
         for key, value in metrics.items():
             self.logger.info(f"  {key}: {value:.4f}")
     
     def _compile_metrics_history(self) -> Dict[str, List[float]]:
-        """Компиляция истории метрик"""
+        """Compilation history metrics"""
         compiled = {}
         for key in self.metrics_history[0].keys():
             compiled[key] = [m[key] for m in self.metrics_history]

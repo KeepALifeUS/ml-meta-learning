@@ -2,8 +2,8 @@
 Comprehensive Tests for Meta-Learning System
 Production-Ready Testing
 
-Tests for всех компонентов meta-learning системы с проверкой
-корректности алгоритмов, производительности и интеграции.
+Tests for all components meta-learning system with check
+correctness algorithms, performance and integration.
 """
 
 import pytest
@@ -16,7 +16,7 @@ from pathlib import Path
 from unittest.mock import Mock, patch
 import json
 
-# Импорты тестируемых модулей
+# Imports tested modules
 from ..src.algorithms.maml import MAML, MAMLConfig, MAMLTrainer
 from ..src.algorithms.reptile import Reptile, ReptileConfig, ReptileTrainer
 from ..src.algorithms.meta_sgd import MetaSGD, MetaSGDConfig, MetaSGDTrainer
@@ -65,7 +65,7 @@ class SimpleTestModel(nn.Module):
 
 @pytest.fixture
 def simple_model():
-    """Fixture for простой модели"""
+    """Fixture for simple model"""
     return SimpleTestModel()
 
 
@@ -89,10 +89,10 @@ def temp_dir():
 
 
 class TestMAML:
-    """Tests for MAML алгоритма"""
+    """Tests for MAML algorithm"""
     
     def test_maml_initialization(self, simple_model):
-        """Тест инициализации MAML"""
+        """Test initialization MAML"""
         config = MAMLConfig(
             inner_lr=0.01,
             outer_lr=0.001,
@@ -107,7 +107,7 @@ class TestMAML:
         assert maml.best_meta_loss == float('inf')
     
     def test_maml_inner_loop(self, simple_model, sample_task_data):
-        """Тест внутреннего цикла MAML"""
+        """Test inner loop MAML"""
         config = MAMLConfig(num_inner_steps=3)
         maml = MAML(simple_model, config)
         
@@ -128,7 +128,7 @@ class TestMAML:
             assert not torch.equal(adapted_params[name], original_param)
     
     def test_maml_meta_train_step(self, simple_model, sample_task_data):
-        """Тест шага мета-обучения MAML"""
+        """Test step meta-training MAML"""
         config = MAMLConfig(num_inner_steps=2)
         maml = MAML(simple_model, config)
         
@@ -146,7 +146,7 @@ class TestMAML:
         assert maml.global_step == 1
     
     def test_maml_few_shot_adapt(self, simple_model):
-        """Тест few-shot адаптации MAML"""
+        """Test few-shot adaptation MAML"""
         config = MAMLConfig(num_inner_steps=3)
         maml = MAML(simple_model, config)
         
@@ -159,21 +159,21 @@ class TestMAML:
         assert adapted_model != simple_model  # Should be different model
     
     def test_maml_checkpoint_save_load(self, simple_model, temp_dir):
-        """Тест сохранения и загрузки checkpoint MAML"""
+        """Test saving and loading checkpoint MAML"""
         config = MAMLConfig()
         maml = MAML(simple_model, config)
         
-        # Изменяем состояние
+        # Change state
         maml.global_step = 10
         maml.best_meta_loss = 0.5
         
-        # Сохраняем
+        # Save
         checkpoint_path = Path(temp_dir) / "test_maml.pt"
         maml.save_checkpoint(str(checkpoint_path))
         
         assert checkpoint_path.exists()
         
-        # Загружаем
+        # Load
         new_maml = MAML(simple_model, config)
         new_maml.load_checkpoint(str(checkpoint_path))
         
@@ -182,10 +182,10 @@ class TestMAML:
 
 
 class TestReptile:
-    """Tests for Reptile алгоритма"""
+    """Tests for Reptile algorithm"""
     
     def test_reptile_initialization(self, simple_model):
-        """Тест инициализации Reptile"""
+        """Test initialization Reptile"""
         config = ReptileConfig(
             inner_lr=0.01,
             meta_lr=0.001,
@@ -199,7 +199,7 @@ class TestReptile:
         assert reptile.global_step == 0
     
     def test_reptile_inner_adaptation(self, simple_model, sample_task_data):
-        """Тест внутренней адаптации Reptile"""
+        """Test inner adaptation Reptile"""
         config = ReptileConfig(num_inner_steps=3)
         reptile = Reptile(simple_model, config)
         
@@ -215,7 +215,7 @@ class TestReptile:
         assert adaptation_losses[0] >= adaptation_losses[-1]
     
     def test_reptile_meta_train_step(self, simple_model, sample_task_data):
-        """Тест шага мета-обучения Reptile"""
+        """Test step meta-training Reptile"""
         config = ReptileConfig(num_inner_steps=2)
         reptile = Reptile(simple_model, config)
         
@@ -237,10 +237,10 @@ class TestReptile:
 
 
 class TestMetaSGD:
-    """Tests for Meta-SGD алгоритма"""
+    """Tests for Meta-SGD algorithm"""
     
     def test_meta_sgd_initialization(self, simple_model):
-        """Тест инициализации Meta-SGD"""
+        """Test initialization Meta-SGD"""
         config = MetaSGDConfig(
             meta_lr=0.001,
             num_inner_steps=3
@@ -259,7 +259,7 @@ class TestMetaSGD:
                 assert meta_sgd.inner_lrs[name].shape == param.shape
     
     def test_meta_sgd_inner_loop(self, simple_model, sample_task_data):
-        """Тест внутреннего цикла Meta-SGD"""
+        """Test inner loop Meta-SGD"""
         config = MetaSGDConfig(num_inner_steps=3)
         meta_sgd = MetaSGD(simple_model, config)
         
@@ -279,7 +279,7 @@ class TestMetaSGD:
             assert len(lr_values) > 0
     
     def test_meta_sgd_learning_rates_stats(self, simple_model):
-        """Тест статистики learning rates"""
+        """Test statistics learning rates"""
         config = MetaSGDConfig()
         meta_sgd = MetaSGD(simple_model, config)
         
@@ -298,7 +298,7 @@ class TestPrototypicalNetworks:
     """Tests for Prototypical Networks"""
     
     def test_protonet_initialization(self):
-        """Тест инициализации ProtoNet"""
+        """Test initialization ProtoNet"""
         config = ProtoNetConfig(
             embedding_dim=64,
             num_classes=5,
@@ -312,20 +312,20 @@ class TestPrototypicalNetworks:
         assert protonet.global_step == 0
     
     def test_protonet_compute_prototypes(self, sample_task_data):
-        """Тест вычисления прототипов"""
+        """Test computations prototypes"""
         config = ProtoNetConfig(embedding_dim=32, num_classes=5)
         protonet = PrototypicalNetworks(input_dim=10, config=config)
         
-        # Создаем embedding'и
+        # Create embedding'and
         embeddings = torch.randn(25, 32)  # 5 classes * 5 examples
         labels = torch.arange(5).repeat(5)  # [0,1,2,3,4,0,1,2,3,4,...]
         
         prototypes = protonet.compute_prototypes(embeddings, labels)
         
-        assert prototypes.shape == (5, 32)  # 5 классов, 32-мерные прототипы
+        assert prototypes.shape == (5, 32)  # 5 classes, 32-dimensional prototypes
     
     def test_protonet_predict_classification(self):
-        """Тест предсказания классификации"""
+        """Test predictions classification"""
         config = ProtoNetConfig(embedding_dim=32, num_classes=3)
         protonet = PrototypicalNetworks(input_dim=10, config=config)
         
@@ -341,7 +341,7 @@ class TestPrototypicalNetworks:
         assert torch.allclose(probabilities.sum(dim=1), torch.ones(10))
     
     def test_protonet_few_shot_predict(self):
-        """Тест few-shot предсказания"""
+        """Test few-shot predictions"""
         config = ProtoNetConfig(embedding_dim=32)
         protonet = PrototypicalNetworks(input_dim=10, config=config)
         
@@ -362,7 +362,7 @@ class TestMatchingNetworks:
     """Tests for Matching Networks"""
     
     def test_matching_net_initialization(self):
-        """Тест инициализации MatchingNet"""
+        """Test initialization MatchingNet"""
         config = MatchingNetConfig(
             embedding_dim=64,
             attention_type="cosine"
@@ -375,7 +375,7 @@ class TestMatchingNetworks:
         assert matching_net.attention is not None
     
     def test_matching_net_attention(self):
-        """Тест механизма внимания"""
+        """Test mechanism attention"""
         config = MatchingNetConfig(embedding_dim=32, attention_type="cosine")
         matching_net = MatchingNetworks(input_dim=10, config=config)
         
@@ -393,10 +393,10 @@ class TestMatchingNetworks:
 
 
 class TestTaskDistribution:
-    """Tests for системы распределения задач"""
+    """Tests for system distribution tasks"""
     
     def test_crypto_task_distribution_initialization(self):
-        """Тест инициализации CryptoTaskDistribution"""
+        """Test initialization CryptoTaskDistribution"""
         config = CryptoTaskConfig(
             task_type="classification",
             num_classes=3,
@@ -410,7 +410,7 @@ class TestTaskDistribution:
         assert task_dist.task_counter == 0
     
     def test_crypto_task_sampling(self):
-        """Тест семплирования криптовалютных задач"""
+        """Test sampling cryptocurrency tasks"""
         config = CryptoTaskConfig(task_type="classification")
         task_dist = CryptoTaskDistribution(config)
         
@@ -425,7 +425,7 @@ class TestTaskDistribution:
         assert task['query_data'].shape[0] > 0
     
     def test_task_batch_sampling(self):
-        """Тест семплирования batch задач"""
+        """Test sampling batch tasks"""
         config = CryptoTaskConfig()
         task_dist = CryptoTaskDistribution(config)
         
@@ -442,10 +442,10 @@ class TestTaskSampler:
     """Tests for Task Sampler"""
     
     def test_task_cache_basic_operations(self, temp_dir):
-        """Тест базовых операций кэша задач"""
+        """Test base operations cache tasks"""
         cache = TaskCache(max_size=10, cache_dir=temp_dir)
         
-        # Тест put/get
+        # Test put/get
         test_data = {
             'support_data': torch.randn(10, 5),
             'support_labels': torch.randint(0, 3, (10,))
@@ -457,11 +457,11 @@ class TestTaskSampler:
         assert retrieved_data is not None
         assert torch.equal(retrieved_data['support_data'], test_data['support_data'])
         
-        # Тест несуществующего ключа
+        # Test non-existent key
         assert cache.get("nonexistent_key") is None
     
     def test_task_sampler_initialization(self):
-        """Тест инициализации TaskSampler"""
+        """Test initialization TaskSampler"""
         config = CryptoTaskConfig()
         task_dist = CryptoTaskDistribution(config)
         
@@ -478,62 +478,62 @@ class TestTaskSampler:
         assert sampler.cache is not None
     
     def test_task_sampler_sampling(self):
-        """Тест семплирования через TaskSampler"""
+        """Test sampling through TaskSampler"""
         config = CryptoTaskConfig()
         task_dist = CryptoTaskDistribution(config)
         sampler_config = SamplerConfig(batch_size=4, prefetch_factor=0)
         
         with TaskSampler(task_dist, sampler_config) as sampler:
-            # Тест семплирования одной задачи
+            # Test sampling one tasks
             task = sampler.sample_task()
             assert isinstance(task, dict)
             assert 'support_data' in task
             
-            # Тест семплирования batch
+            # Test sampling batch
             batch = sampler.sample_batch(3)
             assert len(batch) == 3
 
 
 class TestMetaOptimizers:
-    """Tests for мета-оптимизаторов"""
+    """Tests for meta-optimizers"""
     
     def test_meta_optimizer_factory(self, simple_model):
-        """Тест фабрики мета-оптимизаторов"""
+        """Test factory meta-optimizers"""
         config = MetaOptimizerConfig()
         
-        # Тест создания MAML оптимизатора
+        # Test creation MAML optimizer
         maml_optimizer = MetaOptimizerFactory.create_optimizer(
             "maml", simple_model, config
         )
         assert maml_optimizer is not None
         
-        # Тест создания Reptile оптимизатора
+        # Test creation Reptile optimizer
         reptile_optimizer = MetaOptimizerFactory.create_optimizer(
             "reptile", simple_model, config
         )
         assert reptile_optimizer is not None
         
-        # Тест неизвестного типа
+        # Test unknown type
         with pytest.raises(ValueError):
             MetaOptimizerFactory.create_optimizer(
                 "unknown", simple_model, config
             )
     
     def test_inner_loop_optimizer_factory(self):
-        """Тест фабрики inner loop оптимизаторов"""
+        """Test factory inner loop optimizers"""
         config = InnerLoopConfig()
         
-        # Тест создания SGD оптимизатора
+        # Test creation SGD optimizer
         sgd_optimizer = InnerLoopOptimizerFactory.create_optimizer("sgd", config)
         assert sgd_optimizer is not None
         
-        # Тест создания Adam оптимизатора
+        # Test creation Adam optimizer
         adam_optimizer = InnerLoopOptimizerFactory.create_optimizer("adam", config)
         assert adam_optimizer is not None
 
 
 class TestEvaluation:
-    """Tests for системы оценки"""
+    """Tests for system estimation"""
     
     def test_classification_evaluator(self, simple_model, sample_task_data):
         """Test evaluator for classification"""
@@ -554,11 +554,11 @@ class TestEvaluation:
         assert 0 <= metrics['precision'] <= 1
     
     def test_regression_evaluator(self, simple_model):
-        """Тест evaluator для регрессии"""
+        """Test evaluator for regression"""
         config = EvaluationConfig(num_episodes=5)
         evaluator = RegressionEvaluator(config)
         
-        # Создаем данные регрессии
+        # Create data regression
         regression_data = {
             'support_data': torch.randn(10, 10),
             'support_labels': torch.randn(10),
@@ -579,7 +579,7 @@ class TestEvaluation:
         assert metrics['mae'] >= 0
     
     def test_few_shot_benchmark(self, simple_model, temp_dir):
-        """Тест бенчмаркинга"""
+        """Test benchmarking"""
         config = EvaluationConfig(num_episodes=3, num_runs=2)
         benchmark = FewShotBenchmark(config)
         
@@ -597,7 +597,7 @@ class TestEvaluation:
             }
         
         with patch.object(benchmark, 'config') as mock_config:
-            mock_config.save_plots = False  # Отключаем сохранение графиков
+            mock_config.save_plots = False  # Disable saving charts
             
             results = benchmark.run_benchmark(
                 models, dummy_task_generator, "classification"
@@ -609,46 +609,46 @@ class TestEvaluation:
 
 
 class TestUtilities:
-    """Tests for утилит"""
+    """Tests for utilities"""
     
     def test_gradient_manager(self, simple_model):
-        """Тест менеджера градиентов"""
+        """Test manager gradients"""
         manager = GradientManager()
         
-        # Создаем fake градиенты
+        # Create fake gradients
         for param in simple_model.parameters():
             param.grad = torch.randn_like(param)
         
-        # Тест вычисления нормы градиентов
+        # Test computations norms gradients
         norm = manager.compute_gradient_norm(simple_model.parameters())
         assert isinstance(norm, float)
         assert norm >= 0
         
-        # Тест статистик градиентов
+        # Test statistics gradients
         stats = manager.compute_gradient_stats(simple_model.parameters())
         assert 'mean' in stats
         assert 'std' in stats
         assert 'norm_l2' in stats
         
-        # Тест обрезки градиентов
+        # Test trimming gradients
         clipped_norm = manager.clip_gradients(simple_model.parameters(), max_norm=1.0)
         assert isinstance(clipped_norm, float)
     
     def test_meta_learning_metrics(self):
-        """Тест системы метрик"""
+        """Test system metrics"""
         metrics = MetaLearningMetrics()
         
-        # Тест отслеживания метрик
+        # Test tracking metrics
         metrics.track_metric("accuracy", 0.85, "task1")
         metrics.track_metric("accuracy", 0.90, "task2")
         
-        # Тест получения сводки
+        # Test retrieval summary
         summary = metrics.get_metric_summary("accuracy")
         assert 'mean' in summary
         assert 'std' in summary
         assert summary['count'] == 2
         
-        # Тест метрик адаптации
+        # Test metrics adaptation
         adaptation_metrics = metrics.compute_adaptation_metrics(
             initial_performance=0.5,
             final_performance=0.8,
@@ -661,10 +661,10 @@ class TestUtilities:
         assert adaptation_metrics['adaptation_improvement'] == 0.3
     
     def test_data_analyzer(self, sample_task_data):
-        """Тест анализатора данных"""
+        """Test analyzer data"""
         analyzer = DataAnalyzer()
         
-        # Тест анализа сложности задачи
+        # Test analysis complexity tasks
         difficulty = analyzer.analyze_task_difficulty(
             sample_task_data['support_data'],
             sample_task_data['support_labels'],
@@ -676,7 +676,7 @@ class TestUtilities:
         assert 'feature_dimensionality' in difficulty
         assert 0 <= difficulty['overall_difficulty'] <= 1
         
-        # Тест оценки качества данных
+        # Test estimation quality data
         quality = analyzer.assess_data_quality(
             sample_task_data['support_data'],
             sample_task_data['support_labels']
@@ -687,10 +687,10 @@ class TestUtilities:
         assert 0 <= quality['overall_quality'] <= 1
     
     def test_visualizer(self, temp_dir):
-        """Тест системы визуализации"""
+        """Test system visualization"""
         visualizer = Visualizer(save_dir=temp_dir)
         
-        # Тест данных для визуализации
+        # Test data for visualization
         metrics_history = {
             'loss': [
                 {'value': 1.0, 'timestamp': 1000},
@@ -704,36 +704,36 @@ class TestUtilities:
             ]
         }
         
-        # Тест создания графика прогресса обучения
+        # Test creation chart progress training
         try:
             visualizer.plot_training_progress(metrics_history)
-            # Проверяем, что файл создался
+            # Check, that file was created
             plot_files = list(Path(temp_dir).glob("*.png"))
             assert len(plot_files) > 0
         except Exception as e:
-            # Визуализация может не работать в headless среде
+            # Visualization can not work in headless environment
             pytest.skip(f"Visualization test skipped: {e}")
 
 
 class TestIntegration:
-    """Интеграционные тесты"""
+    """Integration tests"""
     
     def test_end_to_end_maml_training(self):
-        """Интеграционный тест обучения MAML"""
-        # Создаем компоненты
+        """Integration test training MAML"""
+        # Create components
         model = SimpleTestModel()
         config = MAMLConfig(num_inner_steps=2)
         maml = MAML(model, config)
         
-        # Создаем задачи
+        # Create tasks
         task_config = CryptoTaskConfig(task_type="classification")
         task_dist = CryptoTaskDistribution(task_config)
         
-        # Симулируем несколько шагов обучения
+        # Simulate several steps training
         for step in range(3):
             task = task_dist.sample_task()
             
-            # Конвертируем labels для регрессии (MAML ожидает float)
+            # Convert labels for regression (MAML expects float)
             task['support_labels'] = task['support_labels'].float()
             task['query_labels'] = task['query_labels'].float()
             
@@ -744,8 +744,8 @@ class TestIntegration:
             assert maml.global_step == step + 1
     
     def test_end_to_end_evaluation_pipeline(self):
-        """Интеграционный тест пайплайна оценки"""
-        # Создаем модель и задачи
+        """Integration test pipeline estimation"""
+        # Create model and tasks
         model = SimpleTestModel()
         
         def task_generator():
@@ -756,11 +756,11 @@ class TestIntegration:
                 'query_labels': torch.randint(0, 3, (9,))
             }
         
-        # Создаем evaluator
+        # Create evaluator
         config = EvaluationConfig(num_episodes=2, num_runs=1)
         evaluator = ClassificationEvaluator(config)
         
-        # Запускаем оценку
+        # Run estimation
         results = evaluator.run_evaluation(model, task_generator, "test_model")
         
         assert 'model_name' in results
@@ -768,11 +768,11 @@ class TestIntegration:
         assert results['model_name'] == "test_model"
     
     def test_crypto_market_simulator_integration(self):
-        """Интеграционный тест симулятора крипторынка"""
+        """Integration test simulator crypto market"""
         config = CryptoTaskConfig()
         simulator = CryptoMarketSimulator(config)
         
-        # Тест генерации ценового ряда
+        # Test generation price series
         from ..src.tasks.crypto_tasks import MarketRegime
         
         prices = simulator.generate_price_series(
@@ -783,14 +783,14 @@ class TestIntegration:
         
         assert len(prices) == 100
         assert prices[0] == 100.0
-        assert np.all(prices > 0)  # Цены должны быть положительными
+        assert np.all(prices > 0)  # Price must be positive
         
-        # Тест генерации объемов
+        # Test generation volumes
         volumes = simulator.generate_volume_series(prices)
         assert len(volumes) == len(prices)
         assert np.all(volumes > 0)
         
-        # Тест технических индикаторов
+        # Test technical indicators
         indicators = simulator.compute_technical_indicators(prices, volumes)
         assert len(indicators) > 0
         assert 'sma_20' in indicators or 'ema_12' in indicators

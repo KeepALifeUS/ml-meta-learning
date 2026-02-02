@@ -2,8 +2,8 @@
 Meta-Optimizer Framework
 Advanced Meta-Learning Optimization
 
-Комплексная система мета-оптимизации для быстрой адаптации к новым криптовалютным
-рынкам с поддержкой различных алгоритмов и стратегий оптимизации.
+Comprehensive system meta-optimization for fast adaptation to new cryptocurrency
+markets with support various algorithms and strategies optimization.
 """
 
 import torch
@@ -24,42 +24,42 @@ from ..utils.meta_utils import MetaLearningMetrics
 
 @dataclass
 class MetaOptimizerConfig:
-    """Конфигурация для мета-оптимизатора"""
+    """Configuration for meta-optimizer"""
     
-    # Основные параметры
-    meta_lr: float = 0.001  # Мета-скорость обучения
-    inner_lr: float = 0.01  # Внутренняя скорость обучения
-    num_inner_steps: int = 5  # Количество внутренних шагов
+    # Main parameters
+    meta_lr: float = 0.001  # Meta-speed training
+    inner_lr: float = 0.01  # Inner speed training
+    num_inner_steps: int = 5  # Number inner steps
     
-    # Оптимизатор
+    # Optimizer
     optimizer_type: str = "adam"  # adam, sgd, rmsprop, adamw
-    beta1: float = 0.9  # Для Adam-like оптимизаторов
-    beta2: float = 0.999  # Для Adam-like оптимизаторов
-    weight_decay: float = 0.0001  # L2 регуляризация
+    beta1: float = 0.9  # For Adam-like optimizers
+    beta2: float = 0.999  # For Adam-like optimizers
+    weight_decay: float = 0.0001  # L2 regularization
     
-    # Градиенты
-    grad_clip: Optional[float] = 1.0  # Обрезка градиентов
-    grad_accumulation_steps: int = 1  # Аккумуляция градиентов
+    # Gradients
+    grad_clip: Optional[float] = 1.0  # Trimming gradients
+    grad_accumulation_steps: int = 1  # Accumulation gradients
     
     # Learning rate scheduling
     use_scheduler: bool = True
     scheduler_type: str = "cosine"  # cosine, plateau, exponential, step
-    scheduler_patience: int = 10  # Для ReduceLROnPlateau
-    scheduler_factor: float = 0.8  # Фактор уменьшения LR
+    scheduler_patience: int = 10  # For ReduceLROnPlateau
+    scheduler_factor: float = 0.8  # Factor decrease LR
     
     # Adaptive optimization
-    use_adaptive_lr: bool = True  # Адаптивная скорость обучения
-    lr_adaptation_window: int = 50  # Окно для адаптации
-    min_lr: float = 1e-6  # Минимальная скорость обучения
-    max_lr: float = 1.0  # Максимальная скорость обучения
+    use_adaptive_lr: bool = True  # Adaptive speed training
+    lr_adaptation_window: int = 50  # Window for adaptation
+    min_lr: float = 1e-6  # Minimum speed training
+    max_lr: float = 1.0  # Maximum speed training
     
     # Regularization
     use_weight_decay: bool = True
-    use_dropout_schedule: bool = False  # Планирование dropout
-    dropout_decay: float = 0.99  # Фактор уменьшения dropout
+    use_dropout_schedule: bool = False  # Planning dropout
+    dropout_decay: float = 0.99  # Factor decrease dropout
     
     # Advanced features
-    use_gradient_checkpointing: bool = False  # Checkpoint градиентов
+    use_gradient_checkpointing: bool = False  # Checkpoint gradients
     use_mixed_precision: bool = False  # Mixed precision training
     
     device: str = "cuda" if torch.cuda.is_available() else "cpu"
@@ -67,7 +67,7 @@ class MetaOptimizerConfig:
 
 class BaseMetaOptimizer(ABC):
     """
-    Базовый класс для мета-оптимизаторов
+    Base class for meta-optimizers
     
     Abstract Meta-Optimizer
     - Pluggable optimization strategies
@@ -85,16 +85,16 @@ class BaseMetaOptimizer(ABC):
         self.config = config
         self.logger = logger or logging.getLogger(__name__)
         
-        # Состояние оптимизации
+        # State optimization
         self.step_count = 0
         self.current_lr = config.meta_lr
         self.best_performance = float('inf')
         
-        # Статистики
+        # Statistics
         self.optimization_history = deque(maxlen=1000)
         self.gradient_stats = defaultdict(list)
         
-        # Утилиты
+        # Utilities
         self.gradient_manager = GradientManager()
         self.metrics = MetaLearningMetrics()
         
@@ -104,7 +104,7 @@ class BaseMetaOptimizer(ABC):
         meta_loss: torch.Tensor,
         task_batch: List[Dict[str, torch.Tensor]]
     ) -> Dict[str, float]:
-        """Выполняет один шаг мета-оптимизации"""
+        """Executes one step meta-optimization"""
         pass
     
     @abstractmethod
@@ -114,17 +114,17 @@ class BaseMetaOptimizer(ABC):
         support_labels: torch.Tensor,
         model_params: Dict[str, torch.Tensor]
     ) -> Dict[str, torch.Tensor]:
-        """Выполняет обновление во внутреннем цикле"""
+        """Executes update in inner loop"""
         pass
     
     def zero_grad(self) -> None:
-        """Обнуляет градиенты"""
+        """Resets to zero gradients"""
         for param in self.model.parameters():
             if param.grad is not None:
                 param.grad.zero_()
     
     def clip_gradients(self) -> float:
-        """Обрезает градиенты и возвращает норму"""
+        """Trims gradients and returns norm"""
         if self.config.grad_clip is None:
             return 0.0
         
@@ -135,15 +135,15 @@ class BaseMetaOptimizer(ABC):
         return total_norm.item()
     
     def update_learning_rate(self, performance_metric: float) -> None:
-        """Обновляет скорость обучения на основе производительности"""
+        """Updates speed training on basis performance"""
         if not self.config.use_adaptive_lr:
             return
         
-        # Простая адаптивная стратегия
+        # Simple adaptive strategy
         if len(self.optimization_history) >= self.config.lr_adaptation_window:
             recent_performance = [h['performance'] for h in list(self.optimization_history)[-self.config.lr_adaptation_window:]]
             
-            # Если производительность не улучшается, уменьшаем LR
+            # If performance not improves, reduce LR
             if performance_metric > np.mean(recent_performance):
                 self.current_lr = max(
                     self.current_lr * self.config.scheduler_factor,
@@ -151,7 +151,7 @@ class BaseMetaOptimizer(ABC):
                 )
                 self.logger.debug(f"Decreased learning rate to {self.current_lr}")
             elif performance_metric < np.min(recent_performance):
-                # Если лучший результат, можно увеличить LR
+                # If best result, possible increase LR
                 self.current_lr = min(
                     self.current_lr * 1.05,
                     self.config.max_lr
@@ -164,7 +164,7 @@ class BaseMetaOptimizer(ABC):
         gradient_norm: float,
         performance_metric: float
     ) -> None:
-        """Логирует шаг оптимизации"""
+        """Logs step optimization"""
         step_info = {
             'step': self.step_count,
             'meta_loss': meta_loss,
@@ -176,16 +176,16 @@ class BaseMetaOptimizer(ABC):
         
         self.optimization_history.append(step_info)
         
-        # Обновляем статистики градиентов
+        # Update statistics gradients
         self.gradient_stats['norms'].append(gradient_norm)
         self.gradient_stats['losses'].append(meta_loss)
     
     def get_optimization_statistics(self) -> Dict[str, Any]:
-        """Возвращает статистики оптимизации"""
+        """Returns statistics optimization"""
         if not self.optimization_history:
             return {}
         
-        recent_history = list(self.optimization_history)[-100:]  # Последние 100 шагов
+        recent_history = list(self.optimization_history)[-100:]  # Recent 100 steps
         
         return {
             'total_steps': self.step_count,
@@ -200,7 +200,7 @@ class BaseMetaOptimizer(ABC):
 
 class MAMLOptimizer(BaseMetaOptimizer):
     """
-    MAML-специфичный оптимизатор
+    MAML-specific optimizer
     
     MAML Optimization Strategy
     - Second-order gradient computation
@@ -216,10 +216,10 @@ class MAMLOptimizer(BaseMetaOptimizer):
     ):
         super().__init__(model, config, logger)
         
-        # Создаем мета-оптимизатор
+        # Create meta-optimizer
         self.meta_optimizer = self._create_optimizer()
         
-        # Scheduler для мета-оптимизатора
+        # Scheduler for meta-optimizer
         if config.use_scheduler:
             self.scheduler = self._create_scheduler()
         else:
@@ -228,7 +228,7 @@ class MAMLOptimizer(BaseMetaOptimizer):
         self.logger.info(f"MAMLOptimizer initialized with {config.optimizer_type}")
     
     def _create_optimizer(self) -> optim.Optimizer:
-        """Создает мета-оптимизатор"""
+        """Creates meta-optimizer"""
         if self.config.optimizer_type.lower() == "adam":
             return optim.Adam(
                 self.model.parameters(),
@@ -261,11 +261,11 @@ class MAMLOptimizer(BaseMetaOptimizer):
             raise ValueError(f"Unknown optimizer type: {self.config.optimizer_type}")
     
     def _create_scheduler(self) -> optim.lr_scheduler._LRScheduler:
-        """Создает scheduler для learning rate"""
+        """Creates scheduler for learning rate"""
         if self.config.scheduler_type == "cosine":
             return optim.lr_scheduler.CosineAnnealingLR(
                 self.meta_optimizer,
-                T_max=1000,  # Максимальное количество эпох
+                T_max=1000,  # Maximum number epochs
                 eta_min=self.config.min_lr
             )
         elif self.config.scheduler_type == "plateau":
@@ -295,30 +295,30 @@ class MAMLOptimizer(BaseMetaOptimizer):
         support_labels: torch.Tensor,
         model_params: Dict[str, torch.Tensor]
     ) -> Dict[str, torch.Tensor]:
-        """Выполняет обновление во внутреннем цикле MAML"""
+        """Executes update in inner loop MAML"""
         
-        # Копируем параметры
+        # Copy parameters
         updated_params = {}
         for name, param in model_params.items():
             updated_params[name] = param.clone().requires_grad_(True)
         
-        # Внутренние шаги градиентного спуска
+        # Inner steps gradient descent
         for step in range(self.config.num_inner_steps):
-            # Forward pass с текущими параметрами
+            # Forward pass with current parameters
             predictions = self._functional_forward(support_data, updated_params)
             
-            # Вычисляем loss
+            # Compute loss
             inner_loss = nn.functional.mse_loss(predictions, support_labels)
             
-            # Вычисляем градиенты
+            # Compute gradients
             grads = torch.autograd.grad(
                 inner_loss,
                 updated_params.values(),
-                create_graph=True,  # Для второго порядка
+                create_graph=True,  # For second order
                 allow_unused=True
             )
             
-            # Обновляем параметры
+            # Update parameters
             new_params = {}
             for (name, param), grad in zip(updated_params.items(), grads):
                 if grad is not None:
@@ -335,11 +335,11 @@ class MAMLOptimizer(BaseMetaOptimizer):
         data: torch.Tensor,
         params: Dict[str, torch.Tensor]
     ) -> torch.Tensor:
-        """Functional forward pass с заданными параметрами"""
-        # Это упрощенная версия. В реальности нужен functional API
-        # для модели или использование higher library
+        """Functional forward pass with specified parameters"""
+        # This simplified version. IN reality needed functional API
+        # for model or usage higher library
         
-        # Временно заменяем параметры модели
+        # Temporarily replace parameters model
         original_params = {}
         for name, param in self.model.named_parameters():
             original_params[name] = param.data.clone()
@@ -349,7 +349,7 @@ class MAMLOptimizer(BaseMetaOptimizer):
         try:
             output = self.model(data)
         finally:
-            # Восстанавливаем параметры
+            # Restore parameters
             for name, param in self.model.named_parameters():
                 param.data = original_params[name]
         
@@ -360,34 +360,34 @@ class MAMLOptimizer(BaseMetaOptimizer):
         meta_loss: torch.Tensor,
         task_batch: List[Dict[str, torch.Tensor]]
     ) -> Dict[str, float]:
-        """Выполняет один шаг MAML оптимизации"""
+        """Executes one step MAML optimization"""
         
-        # Обнуляем градиенты
+        # Zero out gradients
         self.meta_optimizer.zero_grad()
         
-        # Backward pass для мета-loss
+        # Backward pass for meta-loss
         meta_loss.backward()
         
-        # Обрезаем градиенты
+        # Trim gradients
         gradient_norm = self.clip_gradients()
         
-        # Шаг оптимизации
+        # Step optimization
         self.meta_optimizer.step()
         
-        # Обновляем scheduler
+        # Update scheduler
         if self.scheduler and self.config.scheduler_type != "plateau":
             self.scheduler.step()
         elif self.scheduler and self.config.scheduler_type == "plateau":
             self.scheduler.step(meta_loss.item())
         
-        # Обновляем статистики
+        # Update statistics
         current_performance = meta_loss.item()
         self.update_learning_rate(current_performance)
         
         if current_performance < self.best_performance:
             self.best_performance = current_performance
         
-        # Логируем
+        # Log
         self.log_optimization_step(
             meta_loss.item(),
             gradient_norm,
@@ -396,7 +396,7 @@ class MAMLOptimizer(BaseMetaOptimizer):
         
         self.step_count += 1
         
-        # Возвращаем метрики
+        # Return metrics
         return {
             'meta_loss': meta_loss.item(),
             'gradient_norm': gradient_norm,
@@ -407,7 +407,7 @@ class MAMLOptimizer(BaseMetaOptimizer):
 
 class ReptileOptimizer(BaseMetaOptimizer):
     """
-    Reptile-специфичный оптимизатор
+    Reptile-specific optimizer
     
     First-Order Meta-Optimization
     - Simple parameter interpolation
@@ -423,8 +423,8 @@ class ReptileOptimizer(BaseMetaOptimizer):
     ):
         super().__init__(model, config, logger)
         
-        # Reptile не использует традиционный оптимизатор
-        # Обновления делаются напрямую
+        # Reptile not uses traditional optimizer
+        # Updates are done directly
         
         self.logger.info("ReptileOptimizer initialized")
     
@@ -434,19 +434,19 @@ class ReptileOptimizer(BaseMetaOptimizer):
         support_labels: torch.Tensor,
         model_params: Dict[str, torch.Tensor]
     ) -> Dict[str, torch.Tensor]:
-        """Выполняет обновление во внутреннем цикле Reptile"""
+        """Executes update in inner loop Reptile"""
         
-        # Создаем копию модели для обучения
+        # Create copy model for training
         model_copy = type(self.model)(**self.model.get_config() if hasattr(self.model, 'get_config') else {})
         model_copy.load_state_dict(dict(self.model.named_parameters()))
         
-        # Оптимизатор для внутреннего цикла
+        # Optimizer for inner loop
         inner_optimizer = optim.SGD(
             model_copy.parameters(),
             lr=self.config.inner_lr
         )
         
-        # Внутренние шаги
+        # Inner steps
         for step in range(self.config.num_inner_steps):
             inner_optimizer.zero_grad()
             
@@ -456,7 +456,7 @@ class ReptileOptimizer(BaseMetaOptimizer):
             inner_loss.backward()
             inner_optimizer.step()
         
-        # Возвращаем обновленные параметры
+        # Return updated parameters
         updated_params = {}
         for name, param in model_copy.named_parameters():
             updated_params[name] = param.data.clone()
@@ -468,31 +468,31 @@ class ReptileOptimizer(BaseMetaOptimizer):
         meta_loss: torch.Tensor,
         task_batch: List[Dict[str, torch.Tensor]]
     ) -> Dict[str, float]:
-        """Выполняет один шаг Reptile оптимизации"""
+        """Executes one step Reptile optimization"""
         
-        # Сохраняем исходные параметры
+        # Save original parameters
         original_params = {}
         for name, param in self.model.named_parameters():
             original_params[name] = param.data.clone()
         
-        # Собираем обновленные параметры от всех задач
+        # Collect updated parameters from all tasks
         all_updated_params = []
         
         for task in task_batch:
             support_data = task['support_data']
             support_labels = task['support_labels']
             
-            # Обновление для задачи
+            # Update for tasks
             updated_params = self.inner_loop_update(
                 support_data, support_labels, original_params
             )
             all_updated_params.append(updated_params)
         
-        # Reptile meta-update: интерполяция параметров
+        # Reptile meta-update: interpolation parameters
         with torch.no_grad():
             for name, param in self.model.named_parameters():
                 if name in original_params:
-                    # Вычисляем среднее направление обновления
+                    # Compute average direction updates
                     param_updates = []
                     for updated_params in all_updated_params:
                         if name in updated_params:
@@ -509,7 +509,7 @@ class ReptileOptimizer(BaseMetaOptimizer):
                         if self.config.use_weight_decay:
                             param.data.mul_(1 - self.config.weight_decay * self.current_lr)
         
-        # Вычисляем "gradient norm" для мониторинга
+        # Compute "gradient norm" for monitoring
         total_update_norm = 0.0
         for updated_params in all_updated_params:
             for name, param in self.model.named_parameters():
@@ -519,14 +519,14 @@ class ReptileOptimizer(BaseMetaOptimizer):
         
         gradient_norm = math.sqrt(total_update_norm)
         
-        # Обновляем статистики
+        # Update statistics
         current_performance = meta_loss.item()
         self.update_learning_rate(current_performance)
         
         if current_performance < self.best_performance:
             self.best_performance = current_performance
         
-        # Логируем
+        # Log
         self.log_optimization_step(
             meta_loss.item(),
             gradient_norm,
@@ -545,7 +545,7 @@ class ReptileOptimizer(BaseMetaOptimizer):
 
 class AdaptiveMetaOptimizer(BaseMetaOptimizer):
     """
-    Адаптивный мета-оптимизатор с автоматическим выбором стратегии
+    Adaptive meta-optimizer with automatic selection strategies
     
     Adaptive Optimization Strategy
     - Dynamic algorithm selection
@@ -561,34 +561,34 @@ class AdaptiveMetaOptimizer(BaseMetaOptimizer):
     ):
         super().__init__(model, config, logger)
         
-        # Создаем различные оптимизаторы
+        # Create various optimizers
         self.optimizers = {
             'maml': MAMLOptimizer(model, config, logger),
             'reptile': ReptileOptimizer(model, config, logger)
         }
         
-        # Статистики производительности каждого оптимизатора
+        # Statistics performance of each optimizer
         self.optimizer_performance = defaultdict(list)
-        self.current_optimizer = 'maml'  # По умолчанию
+        self.current_optimizer = 'maml'  # By default
         
-        # Параметры адаптации
-        self.adaptation_window = 20  # Окно для оценки производительности
-        self.switch_threshold = 0.1  # Порог для переключения оптимизатора
+        # Parameters adaptation
+        self.adaptation_window = 20  # Window for estimation performance
+        self.switch_threshold = 0.1  # Threshold for switching optimizer
         
         self.logger.info("AdaptiveMetaOptimizer initialized")
     
     def _evaluate_optimizer_performance(self) -> str:
-        """Оценивает производительность оптимизаторов и выбирает лучший"""
+        """Evaluates performance optimizers and selects best"""
         
         if len(self.optimizer_performance[self.current_optimizer]) < self.adaptation_window:
             return self.current_optimizer
         
-        # Средняя производительность текущего оптимизатора
+        # Average performance current optimizer
         current_performance = np.mean(
             self.optimizer_performance[self.current_optimizer][-self.adaptation_window:]
         )
         
-        # Проверяем альтернативы
+        # Check alternatives
         best_optimizer = self.current_optimizer
         best_performance = current_performance
         
@@ -611,7 +611,7 @@ class AdaptiveMetaOptimizer(BaseMetaOptimizer):
         support_labels: torch.Tensor,
         model_params: Dict[str, torch.Tensor]
     ) -> Dict[str, torch.Tensor]:
-        """Делегирует внутреннее обновление текущему оптимизатору"""
+        """Delegates inner update current optimizer"""
         return self.optimizers[self.current_optimizer].inner_loop_update(
             support_data, support_labels, model_params
         )
@@ -621,33 +621,33 @@ class AdaptiveMetaOptimizer(BaseMetaOptimizer):
         meta_loss: torch.Tensor,
         task_batch: List[Dict[str, torch.Tensor]]
     ) -> Dict[str, float]:
-        """Выполняет адаптивный шаг оптимизации"""
+        """Executes adaptive step optimization"""
         
-        # Выполняем шаг текущим оптимизатором
+        # Execute step current optimizer
         step_metrics = self.optimizers[self.current_optimizer].step(meta_loss, task_batch)
         
-        # Записываем производительность
+        # Record performance
         self.optimizer_performance[self.current_optimizer].append(meta_loss.item())
         
-        # Оцениваем необходимость переключения
+        # Evaluate necessity switching
         new_optimizer = self._evaluate_optimizer_performance()
         if new_optimizer != self.current_optimizer:
             self.current_optimizer = new_optimizer
         
-        # Обновляем общие статистики
+        # Update general statistics
         self.step_count += 1
         
-        # Добавляем информацию о текущем оптимизаторе
+        # Add information about current optimizer
         step_metrics['current_optimizer'] = self.current_optimizer
         step_metrics['optimizer_switches'] = len(set(self.optimizer_performance.keys()))
         
         return step_metrics
     
     def get_optimization_statistics(self) -> Dict[str, Any]:
-        """Расширенная статистика с информацией об адаптации"""
+        """Extended statistics with information about adaptation"""
         base_stats = super().get_optimization_statistics()
         
-        # Статистики по оптимизаторам
+        # Statistics by optimizers
         optimizer_stats = {}
         for opt_name, performance_history in self.optimizer_performance.items():
             if performance_history:
@@ -668,7 +668,7 @@ class AdaptiveMetaOptimizer(BaseMetaOptimizer):
 
 class MetaOptimizerFactory:
     """
-    Factory для создания мета-оптимизаторов
+    Factory for creation meta-optimizers
     
     Optimizer Factory
     - Centralized optimizer creation
@@ -684,16 +684,16 @@ class MetaOptimizerFactory:
         logger: Optional[logging.Logger] = None
     ) -> BaseMetaOptimizer:
         """
-        Создает мета-оптимизатор заданного типа
+        Creates meta-optimizer specified type
         
         Args:
-            optimizer_type: Тип оптимизатора (maml, reptile, adaptive)
-            model: Модель для оптимизации
-            config: Конфигурация оптимизатора
-            logger: Логгер
+            optimizer_type: Type optimizer (maml, reptile, adaptive)
+            model: Model for optimization
+            config: Configuration optimizer
+            logger: Logger
             
         Returns:
-            Экземпляр мета-оптимизатора
+            Instance meta-optimizer
         """
         
         if optimizer_type.lower() == "maml":
@@ -707,7 +707,7 @@ class MetaOptimizerFactory:
     
     @staticmethod
     def get_default_config(optimizer_type: str) -> MetaOptimizerConfig:
-        """Возвращает конфигурацию по умолчанию для оптимизатора"""
+        """Returns configuration by default for optimizer"""
         
         if optimizer_type.lower() == "maml":
             return MetaOptimizerConfig(
@@ -737,4 +737,4 @@ class MetaOptimizerFactory:
                 use_adaptive_lr=True
             )
         else:
-            return MetaOptimizerConfig()  # Базовая конфигурация
+            return MetaOptimizerConfig()  # Base configuration

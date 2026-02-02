@@ -2,8 +2,8 @@
 Meta-Learning System for Crypto Trading Bot v5.0
 Production-Ready Meta-Learning
 
-Comprehensive meta-learning system для быстрой адаптации к новым
-криптовалютным рынкам и торговым стратегиям.
+Comprehensive meta-learning system for fast adaptation to new
+cryptocurrency markets and trading strategies.
 """
 
 __version__ = "1.0.0"
@@ -11,14 +11,14 @@ __author__ = "ML-Framework Team"
 __email__ = "team@ml-framework.io"
 __description__ = "Comprehensive Meta-Learning System for Crypto Trading"
 
-# Основные алгоритмы
+# Main algorithms
 from .algorithms.maml import MAML, MAMLConfig, MAMLTrainer
 from .algorithms.reptile import Reptile, ReptileConfig, ReptileTrainer
 from .algorithms.meta_sgd import MetaSGD, MetaSGDConfig, MetaSGDTrainer
 from .algorithms.proto_net import PrototypicalNetworks, ProtoNetConfig, ProtoNetTrainer
 from .algorithms.matching_net import MatchingNetworks, MatchingNetConfig, MatchingNetTrainer
 
-# Система задач
+# System tasks
 from .tasks.task_distribution import (
     BaseTaskDistribution, CryptoTaskDistribution, 
     CurriculumTaskDistribution, MultiDomainTaskDistribution,
@@ -30,7 +30,7 @@ from .tasks.crypto_tasks import (
     CryptoMarketSimulator, CryptoTaskConfig, MarketRegime
 )
 
-# Оптимизация
+# Optimization
 from .optimization.meta_optimizer import (
     MetaOptimizerFactory, MetaOptimizerConfig,
     MAMLOptimizer, ReptileOptimizer, AdaptiveMetaOptimizer
@@ -41,13 +41,13 @@ from .optimization.inner_loop import (
     MetaInitializedInnerLoopOptimizer
 )
 
-# Оценка
+# Estimation
 from .evaluation.few_shot_evaluator import (
     ClassificationEvaluator, RegressionEvaluator,
     FewShotBenchmark, EvaluationConfig
 )
 
-# Утилиты
+# Utilities
 from .utils.gradient_utils import (
     GradientManager, HigherOrderGradients,
     GradientAccumulator, GradientProfiler
@@ -57,35 +57,35 @@ from .utils.meta_utils import (
     Visualizer, ModelSerializer
 )
 
-# Основные компоненты для быстрого старта
+# Main components for fast start
 __all__ = [
-    # Алгоритмы
+    # Algorithms
     "MAML", "MAMLConfig", "MAMLTrainer",
     "Reptile", "ReptileConfig", "ReptileTrainer", 
     "MetaSGD", "MetaSGDConfig", "MetaSGDTrainer",
     "PrototypicalNetworks", "ProtoNetConfig", "ProtoNetTrainer",
     "MatchingNetworks", "MatchingNetConfig", "MatchingNetTrainer",
     
-    # Задачи
+    # Tasks
     "CryptoTaskDistribution", "CryptoTaskConfig",
     "TaskSampler", "SamplerConfig",
     "CryptoPriceDirectionTask", "CryptoPortfolioOptimizationTask",
     "CryptoMarketSimulator", "MarketRegime",
     
-    # Оптимизация
+    # Optimization
     "MetaOptimizerFactory", "MetaOptimizerConfig",
     "InnerLoopOptimizerFactory", "InnerLoopConfig",
     
-    # Оценка
+    # Estimation
     "FewShotBenchmark", "EvaluationConfig",
     "ClassificationEvaluator", "RegressionEvaluator",
     
-    # Утилиты
+    # Utilities
     "MetaLearningMetrics", "GradientManager", 
     "DataAnalyzer", "Visualizer"
 ]
 
-# Версионная информация
+# Versioning information
 VERSION_INFO = {
     "version": __version__,
     "algorithms": ["MAML", "Reptile", "Meta-SGD", "ProtoNet", "MatchingNet"],
@@ -96,17 +96,17 @@ VERSION_INFO = {
 }
 
 def get_version_info():
-    """Возвращает информацию о версии системы"""
+    """Returns information about version system"""
     return VERSION_INFO
 
 def create_quick_setup():
     """
-    Быстрая настройка для начала работы
+    Fast configuration for beginning work
     
     Returns:
-        Tuple с базовыми компонентами
+        Tuple with base components
     """
-    # Создаем конфигурации по умолчанию
+    # Create configuration by default
     crypto_config = CryptoTaskConfig(
         task_type="classification",
         trading_pairs=["BTCUSDT", "ETHUSDT", "ADAUSDT"],
@@ -130,7 +130,7 @@ def create_quick_setup():
     
     return crypto_config, maml_config, eval_config
 
-# Лицензионная информация
+# License information
 __license__ = "MIT"
 __copyright__ = "Copyright (c) 2025 ML-Framework Team"
 

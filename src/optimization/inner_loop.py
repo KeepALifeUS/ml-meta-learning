@@ -2,8 +2,8 @@
 Inner Loop Optimization
 Task-Specific Optimization for Meta-Learning
 
-Оптимизация внутреннего цикла для быстрой адаптации к новым задачам
-с различными стратегиями и алгоритмами оптимизации.
+Optimization inner loop for fast adaptation to new tasks
+with various strategies and algorithms optimization.
 """
 
 import torch
@@ -24,45 +24,45 @@ from ..utils.gradient_utils import GradientManager
 
 @dataclass
 class InnerLoopConfig:
-    """Конфигурация для внутреннего цикла оптимизации"""
+    """Configuration for inner loop optimization"""
     
-    # Основные параметры
-    learning_rate: float = 0.01  # Скорость обучения во внутреннем цикле
-    num_steps: int = 5  # Количество шагов оптимизации
+    # Main parameters
+    learning_rate: float = 0.01  # Speed training in inner loop
+    num_steps: int = 5  # Number steps optimization
     
-    # Оптимизатор
+    # Optimizer
     optimizer_type: str = "sgd"  # sgd, adam, adamw, rmsprop
-    momentum: float = 0.0  # Momentum для SGD
-    beta1: float = 0.9  # Beta1 для Adam-like оптимизаторов
-    beta2: float = 0.999  # Beta2 для Adam-like оптимизаторов
+    momentum: float = 0.0  # Momentum for SGD
+    beta1: float = 0.9  # Beta1 for Adam-like optimizers
+    beta2: float = 0.999  # Beta2 for Adam-like optimizers
     
-    # Регуляризация
-    weight_decay: float = 0.0  # L2 регуляризация
-    grad_clip: Optional[float] = None  # Обрезка градиентов
+    # Regularization
+    weight_decay: float = 0.0  # L2 regularization
+    grad_clip: Optional[float] = None  # Trimming gradients
     
-    # Адаптивные стратегии
-    use_adaptive_lr: bool = False  # Адаптивная скорость обучения
-    lr_decay_factor: float = 0.95  # Фактор уменьшения LR
-    min_lr: float = 1e-5  # Минимальная скорость обучения
+    # Adaptive strategies
+    use_adaptive_lr: bool = False  # Adaptive speed training
+    lr_decay_factor: float = 0.95  # Factor decrease LR
+    min_lr: float = 1e-5  # Minimum speed training
     
     # Stopping criteria
-    early_stopping: bool = False  # Ранняя остановка
-    patience: int = 3  # Терпение для ранней остановки
-    min_improvement: float = 1e-4  # Минимальное улучшение
+    early_stopping: bool = False  # Early stopping
+    patience: int = 3  # Patience for early stopping
+    min_improvement: float = 1e-4  # Minimum improvement
     
     # Advanced features
-    use_meta_initialization: bool = False  # Использование мета-инициализации
-    use_gradient_modification: bool = False  # Модификация градиентов
-    use_loss_scaling: bool = False  # Масштабирование loss
+    use_meta_initialization: bool = False  # Usage meta-initialization
+    use_gradient_modification: bool = False  # Modification gradients
+    use_loss_scaling: bool = False  # Scaling loss
     
-    # Специфичные для крипто
-    market_aware_lr: bool = False  # Учет волатильности рынка
-    volatility_adjustment: float = 1.0  # Корректировка на волатильность
+    # Specific for crypto
+    market_aware_lr: bool = False  # Accounting volatility market
+    volatility_adjustment: float = 1.0  # Adjustment on volatility
 
 
 class BaseInnerLoopOptimizer(ABC):
     """
-    Базовый класс для оптимизаторов внутреннего цикла
+    Base class for optimizers inner loop
     
     Abstract Inner Loop Optimizer
     - Task-specific adaptation
@@ -78,11 +78,11 @@ class BaseInnerLoopOptimizer(ABC):
         self.config = config
         self.logger = logger or logging.getLogger(__name__)
         
-        # Статистики
+        # Statistics
         self.adaptation_history = []
         self.gradient_stats = defaultdict(list)
         
-        # Утилиты
+        # Utilities
         self.gradient_manager = GradientManager()
     
     @abstractmethod
@@ -94,16 +94,16 @@ class BaseInnerLoopOptimizer(ABC):
         loss_fn: Optional[Callable] = None
     ) -> Tuple[nn.Module, Dict[str, float]]:
         """
-        Адаптирует модель к задаче
+        Adapts model to task
         
         Args:
-            model: Модель для адаптации
-            support_data: Support данные
-            support_labels: Support метки
-            loss_fn: Функция потерь (по умолчанию MSE)
+            model: Model for adaptation
+            support_data: Support data
+            support_labels: Support labels
+            loss_fn: Function losses (by default MSE)
             
         Returns:
-            Адаптированная модель и метрики адаптации
+            Adapted model and metrics adaptation
         """
         pass
     
@@ -113,13 +113,13 @@ class BaseInnerLoopOptimizer(ABC):
         targets: torch.Tensor,
         loss_fn: Optional[Callable] = None
     ) -> torch.Tensor:
-        """Вычисляет loss с возможными модификациями"""
+        """Computes loss with possible modifications"""
         if loss_fn is None:
             loss_fn = F.mse_loss
         
         base_loss = loss_fn(predictions, targets)
         
-        # Loss scaling для стабильности
+        # Loss scaling for stability
         if self.config.use_loss_scaling:
             loss_scale = self._compute_loss_scale(predictions, targets)
             base_loss = base_loss * loss_scale
@@ -131,8 +131,8 @@ class BaseInnerLoopOptimizer(ABC):
         predictions: torch.Tensor,
         targets: torch.Tensor
     ) -> float:
-        """Вычисляет масштабирующий фактор для loss"""
-        # Адаптивное масштабирование на основе величины loss
+        """Computes scaling factor for loss"""
+        # Adaptive scaling on basis magnitudes loss
         with torch.no_grad():
             loss_magnitude = F.mse_loss(predictions, targets).item()
             
@@ -150,20 +150,20 @@ class BaseInnerLoopOptimizer(ABC):
         base_lr: float,
         support_data: torch.Tensor
     ) -> float:
-        """Корректирует LR на основе волатильности рынка"""
+        """Adjusts LR on basis volatility market"""
         if not self.config.market_aware_lr:
             return base_lr
         
-        # Оцениваем волатильность из данных
+        # Evaluate volatility from data
         with torch.no_grad():
-            # Предполагаем, что последние столбцы - это ценовые данные
+            # Assume, that recent columns - this price data
             if len(support_data.shape) > 1 and support_data.shape[1] > 1:
-                price_data = support_data[:, -1]  # Последний столбец как цена
+                price_data = support_data[:, -1]  # Last column as price
                 if len(price_data) > 1:
                     returns = torch.diff(price_data)
                     volatility = torch.std(returns).item()
                     
-                    # Корректируем LR: больше волатильность -> меньше LR
+                    # Adjust LR: more volatility -> less LR
                     volatility_factor = 1.0 / (1.0 + volatility * self.config.volatility_adjustment)
                     return base_lr * volatility_factor
         
@@ -176,7 +176,7 @@ class BaseInnerLoopOptimizer(ABC):
         gradient_norm: float,
         learning_rate: float
     ) -> None:
-        """Логирует шаг адаптации"""
+        """Logs step adaptation"""
         step_info = {
             'step': step,
             'loss': loss,
@@ -191,7 +191,7 @@ class BaseInnerLoopOptimizer(ABC):
 
 class SGDInnerLoopOptimizer(BaseInnerLoopOptimizer):
     """
-    SGD-based оптимизатор для внутреннего цикла
+    SGD-based optimizer for inner loop
     
     SGD Inner Loop Optimization
     - Simple and efficient
@@ -206,13 +206,13 @@ class SGDInnerLoopOptimizer(BaseInnerLoopOptimizer):
         support_labels: torch.Tensor,
         loss_fn: Optional[Callable] = None
     ) -> Tuple[nn.Module, Dict[str, float]]:
-        """Адаптирует модель с помощью SGD"""
+        """Adapts model with help SGD"""
         
-        # Создаем копию модели
+        # Create copy model
         adapted_model = copy.deepcopy(model)
         adapted_model.train()
         
-        # Создаем оптимизатор
+        # Create optimizer
         base_lr = self._adjust_learning_rate_for_market(
             self.config.learning_rate, support_data
         )
@@ -224,18 +224,18 @@ class SGDInnerLoopOptimizer(BaseInnerLoopOptimizer):
             weight_decay=self.config.weight_decay
         )
         
-        # Адаптивная скорость обучения
+        # Adaptive speed training
         current_lr = base_lr
         
-        # Ранняя остановка
+        # Early stopping
         best_loss = float('inf')
         patience_counter = 0
         
-        # Метрики адаптации
+        # Metrics adaptation
         adaptation_losses = []
         gradient_norms = []
         
-        # Очищаем историю адаптации
+        # Clear history adaptation
         self.adaptation_history.clear()
         
         for step in range(self.config.num_steps):
@@ -259,7 +259,7 @@ class SGDInnerLoopOptimizer(BaseInnerLoopOptimizer):
                     adapted_model.parameters()
                 )
             
-            # Адаптивная корректировка LR
+            # Adaptive adjustment LR
             if self.config.use_adaptive_lr and step > 0:
                 if loss.item() > adaptation_losses[-1]:
                     current_lr = max(
@@ -272,14 +272,14 @@ class SGDInnerLoopOptimizer(BaseInnerLoopOptimizer):
             # Optimization step
             optimizer.step()
             
-            # Логирование
+            # Logging
             loss_value = loss.item()
             adaptation_losses.append(loss_value)
             gradient_norms.append(gradient_norm)
             
             self.log_adaptation_step(step, loss_value, gradient_norm, current_lr)
             
-            # Ранняя остановка
+            # Early stopping
             if self.config.early_stopping:
                 if loss_value < best_loss - self.config.min_improvement:
                     best_loss = loss_value
@@ -291,7 +291,7 @@ class SGDInnerLoopOptimizer(BaseInnerLoopOptimizer):
                     self.logger.debug(f"Early stopping at step {step}")
                     break
         
-        # Метрики адаптации
+        # Metrics adaptation
         metrics = {
             'final_loss': adaptation_losses[-1] if adaptation_losses else float('inf'),
             'initial_loss': adaptation_losses[0] if adaptation_losses else float('inf'),
@@ -306,7 +306,7 @@ class SGDInnerLoopOptimizer(BaseInnerLoopOptimizer):
 
 class AdamInnerLoopOptimizer(BaseInnerLoopOptimizer):
     """
-    Adam-based оптимизатор для внутреннего цикла
+    Adam-based optimizer for inner loop
     
     Adam Inner Loop Optimization
     - Adaptive moment estimation
@@ -321,13 +321,13 @@ class AdamInnerLoopOptimizer(BaseInnerLoopOptimizer):
         support_labels: torch.Tensor,
         loss_fn: Optional[Callable] = None
     ) -> Tuple[nn.Module, Dict[str, float]]:
-        """Адаптирует модель с помощью Adam"""
+        """Adapts model with help Adam"""
         
-        # Создаем копию модели
+        # Create copy model
         adapted_model = copy.deepcopy(model)
         adapted_model.train()
         
-        # Создаем оптимизатор
+        # Create optimizer
         base_lr = self._adjust_learning_rate_for_market(
             self.config.learning_rate, support_data
         )
@@ -339,11 +339,11 @@ class AdamInnerLoopOptimizer(BaseInnerLoopOptimizer):
             weight_decay=self.config.weight_decay
         )
         
-        # Метрики адаптации
+        # Metrics adaptation
         adaptation_losses = []
         gradient_norms = []
         
-        # Очищаем историю
+        # Clear history
         self.adaptation_history.clear()
         
         for step in range(self.config.num_steps):
@@ -370,7 +370,7 @@ class AdamInnerLoopOptimizer(BaseInnerLoopOptimizer):
             # Optimization step
             optimizer.step()
             
-            # Логирование
+            # Logging
             loss_value = loss.item()
             adaptation_losses.append(loss_value)
             gradient_norms.append(gradient_norm)
@@ -378,7 +378,7 @@ class AdamInnerLoopOptimizer(BaseInnerLoopOptimizer):
             current_lr = optimizer.param_groups[0]['lr']
             self.log_adaptation_step(step, loss_value, gradient_norm, current_lr)
         
-        # Метрики
+        # Metrics
         metrics = {
             'final_loss': adaptation_losses[-1] if adaptation_losses else float('inf'),
             'initial_loss': adaptation_losses[0] if adaptation_losses else float('inf'),
@@ -393,7 +393,7 @@ class AdamInnerLoopOptimizer(BaseInnerLoopOptimizer):
 
 class MetaInitializedInnerLoopOptimizer(BaseInnerLoopOptimizer):
     """
-    Оптимизатор с мета-инициализацией параметров
+    Optimizer with meta-initialization parameters
     
     Meta-Initialized Optimization
     - Better initialization from meta-learning
@@ -411,22 +411,22 @@ class MetaInitializedInnerLoopOptimizer(BaseInnerLoopOptimizer):
         
         self.meta_parameters = meta_parameters or {}
         
-        # Параметры мета-инициализации
-        self.initialization_scale = 0.1  # Масштаб инициализации
-        self.parameter_adaptation_rate = 0.1  # Скорость адаптации параметров
+        # Parameters meta-initialization
+        self.initialization_scale = 0.1  # Scale initialization
+        self.parameter_adaptation_rate = 0.1  # Speed adaptation parameters
     
     def _initialize_with_meta_parameters(self, model: nn.Module) -> None:
-        """Инициализирует модель с мета-параметрами"""
+        """Initializes model with meta-parameters"""
         if not self.config.use_meta_initialization or not self.meta_parameters:
             return
         
         with torch.no_grad():
             for name, param in model.named_parameters():
                 if name in self.meta_parameters:
-                    # Комбинируем текущие параметры с мета-параметрами
+                    # Combine current parameters with meta-parameters
                     meta_param = self.meta_parameters[name]
                     
-                    # Взвешенная комбинация
+                    # Weighted combination
                     param.data = (
                         (1 - self.parameter_adaptation_rate) * param.data +
                         self.parameter_adaptation_rate * meta_param
@@ -439,17 +439,17 @@ class MetaInitializedInnerLoopOptimizer(BaseInnerLoopOptimizer):
         support_labels: torch.Tensor,
         loss_fn: Optional[Callable] = None
     ) -> Tuple[nn.Module, Dict[str, float]]:
-        """Адаптирует модель с мета-инициализацией"""
+        """Adapts model with meta-initialization"""
         
-        # Создаем копию модели
+        # Create copy model
         adapted_model = copy.deepcopy(model)
         
-        # Мета-инициализация
+        # Meta-initialization
         self._initialize_with_meta_parameters(adapted_model)
         
         adapted_model.train()
         
-        # Используем адаптивный выбор оптимизатора
+        # Use adaptive selection optimizer
         base_lr = self._adjust_learning_rate_for_market(
             self.config.learning_rate, support_data
         )
@@ -469,12 +469,12 @@ class MetaInitializedInnerLoopOptimizer(BaseInnerLoopOptimizer):
                 weight_decay=self.config.weight_decay
             )
         
-        # Метрики
+        # Metrics
         adaptation_losses = []
         gradient_norms = []
         parameter_changes = []
         
-        # Сохраняем начальные параметры для отслеживания изменений
+        # Save initial parameters for tracking changes
         initial_params = {}
         for name, param in adapted_model.named_parameters():
             initial_params[name] = param.data.clone()
@@ -491,7 +491,7 @@ class MetaInitializedInnerLoopOptimizer(BaseInnerLoopOptimizer):
             # Backward pass
             loss.backward()
             
-            # Модификация градиентов если включена
+            # Modification gradients if enabled
             if self.config.use_gradient_modification:
                 self._modify_gradients(adapted_model, step)
             
@@ -509,14 +509,14 @@ class MetaInitializedInnerLoopOptimizer(BaseInnerLoopOptimizer):
             # Optimization step
             optimizer.step()
             
-            # Отслеживаем изменения параметров
+            # Track changes parameters
             total_param_change = 0.0
             for name, param in adapted_model.named_parameters():
                 if name in initial_params:
                     change = torch.norm(param.data - initial_params[name]).item()
                     total_param_change += change
             
-            # Логирование
+            # Logging
             loss_value = loss.item()
             adaptation_losses.append(loss_value)
             gradient_norms.append(gradient_norm)
@@ -525,7 +525,7 @@ class MetaInitializedInnerLoopOptimizer(BaseInnerLoopOptimizer):
             current_lr = optimizer.param_groups[0]['lr']
             self.log_adaptation_step(step, loss_value, gradient_norm, current_lr)
         
-        # Расширенные метрики
+        # Extended metrics
         metrics = {
             'final_loss': adaptation_losses[-1] if adaptation_losses else float('inf'),
             'initial_loss': adaptation_losses[0] if adaptation_losses else float('inf'),
@@ -541,24 +541,24 @@ class MetaInitializedInnerLoopOptimizer(BaseInnerLoopOptimizer):
         return adapted_model, metrics
     
     def _modify_gradients(self, model: nn.Module, step: int) -> None:
-        """Модифицирует градиенты для лучшей адаптации"""
+        """Modifies gradients for best adaptation"""
         with torch.no_grad():
             for param in model.parameters():
                 if param.grad is not None:
-                    # Gradient scaling на основе шага
+                    # Gradient scaling on basis step
                     scale_factor = 1.0 / (1.0 + 0.1 * step)
                     param.grad.data *= scale_factor
                     
-                    # Добавляем небольшой шум для регуляризации
+                    # Add small noise for regularization
                     noise = torch.randn_like(param.grad) * 0.001
                     param.grad.data += noise
     
     def _compute_convergence_rate(self, losses: List[float]) -> float:
-        """Вычисляет скорость сходимости"""
+        """Computes speed convergence"""
         if len(losses) < 2:
             return 0.0
         
-        # Экспоненциальная скорость сходимости
+        # Exponential speed convergence
         improvements = []
         for i in range(1, len(losses)):
             if losses[i-1] > 0:
@@ -568,14 +568,14 @@ class MetaInitializedInnerLoopOptimizer(BaseInnerLoopOptimizer):
         return np.mean(improvements) if improvements else 0.0
     
     def update_meta_parameters(self, new_meta_parameters: Dict[str, torch.Tensor]) -> None:
-        """Обновляет мета-параметры"""
+        """Updates meta-parameters"""
         self.meta_parameters = new_meta_parameters
         self.logger.debug(f"Updated meta-parameters for {len(new_meta_parameters)} parameters")
 
 
 class InnerLoopOptimizerFactory:
     """
-    Factory для создания оптимизаторов внутреннего цикла
+    Factory for creation optimizers inner loop
     
     Inner Loop Optimizer Factory
     - Centralized optimizer creation
@@ -591,16 +591,16 @@ class InnerLoopOptimizerFactory:
         logger: Optional[logging.Logger] = None
     ) -> BaseInnerLoopOptimizer:
         """
-        Создает оптимизатор внутреннего цикла
+        Creates optimizer inner loop
         
         Args:
-            optimizer_type: Тип оптимизатора (sgd, adam, meta_init)
-            config: Конфигурация оптимизатора
-            meta_parameters: Мета-параметры для инициализации
-            logger: Логгер
+            optimizer_type: Type optimizer (sgd, adam, meta_init)
+            config: Configuration optimizer
+            meta_parameters: Meta-parameters for initialization
+            logger: Logger
             
         Returns:
-            Экземпляр оптимизатора
+            Instance optimizer
         """
         
         if optimizer_type.lower() == "sgd":
@@ -614,7 +614,7 @@ class InnerLoopOptimizerFactory:
     
     @staticmethod
     def get_default_config(optimizer_type: str) -> InnerLoopConfig:
-        """Возвращает конфигурацию по умолчанию"""
+        """Returns configuration by default"""
         
         if optimizer_type.lower() == "sgd":
             return InnerLoopConfig(
@@ -636,7 +636,7 @@ class InnerLoopOptimizerFactory:
         elif optimizer_type.lower() == "meta_init":
             return InnerLoopConfig(
                 learning_rate=0.01,
-                num_steps=3,  # Меньше шагов благодаря лучшей инициализации
+                num_steps=3,  # Less steps thanks to best initialization
                 optimizer_type="adam",
                 use_meta_initialization=True,
                 use_gradient_modification=True,
@@ -648,7 +648,7 @@ class InnerLoopOptimizerFactory:
 
 class AdaptiveInnerLoopManager:
     """
-    Менеджер для адаптивного выбора стратегии внутреннего цикла
+    Manager for adaptive selection strategies inner loop
     
     Adaptive Inner Loop Strategy
     - Performance-based optimizer selection
@@ -664,19 +664,19 @@ class AdaptiveInnerLoopManager:
         self.base_config = base_config
         self.logger = logger or logging.getLogger(__name__)
         
-        # Доступные оптимизаторы
+        # Available optimizers
         self.optimizers = {
             'sgd': InnerLoopOptimizerFactory.create_optimizer('sgd', base_config, None, logger),
             'adam': InnerLoopOptimizerFactory.create_optimizer('adam', base_config, None, logger)
         }
         
-        # Статистики производительности
+        # Statistics performance
         self.performance_history = defaultdict(list)
-        self.current_optimizer = 'adam'  # По умолчанию
+        self.current_optimizer = 'adam'  # By default
         
-        # Параметры адаптации
+        # Parameters adaptation
         self.evaluation_window = 10
-        self.switch_threshold = 0.05  # 5% улучшение для переключения
+        self.switch_threshold = 0.05  # 5% improvement for switching
         
     def adapt_with_best_optimizer(
         self,
@@ -685,47 +685,47 @@ class AdaptiveInnerLoopManager:
         support_labels: torch.Tensor,
         loss_fn: Optional[Callable] = None
     ) -> Tuple[nn.Module, Dict[str, float]]:
-        """Адаптирует модель с лучшим оптимизатором"""
+        """Adapts model with best optimizer"""
         
-        # Выбираем лучший оптимизатор
+        # Select best optimizer
         best_optimizer_name = self._select_best_optimizer()
         
-        # Адаптируем
+        # Adapt
         adapted_model, metrics = self.optimizers[best_optimizer_name].adapt(
             model, support_data, support_labels, loss_fn
         )
         
-        # Записываем производительность
+        # Record performance
         self.performance_history[best_optimizer_name].append(metrics['final_loss'])
         
-        # Добавляем информацию об использованном оптимизаторе
+        # Add information about used optimizer
         metrics['optimizer_used'] = best_optimizer_name
         
         return adapted_model, metrics
     
     def _select_best_optimizer(self) -> str:
-        """Выбирает лучший оптимизатор на основе истории"""
+        """Selects best optimizer on basis history"""
         
-        # Если недостаточно данных, используем текущий
+        # If insufficient data, use current
         if len(self.performance_history[self.current_optimizer]) < self.evaluation_window:
             return self.current_optimizer
         
-        # Оцениваем производительность всех оптимизаторов
+        # Evaluate performance all optimizers
         optimizer_scores = {}
         
         for opt_name in self.optimizers.keys():
-            if len(self.performance_history[opt_name]) >= 5:  # Минимум данных
+            if len(self.performance_history[opt_name]) >= 5:  # Minimum data
                 recent_performance = self.performance_history[opt_name][-5:]
                 optimizer_scores[opt_name] = np.mean(recent_performance)
         
-        # Если нет альтернатив, используем текущий
+        # If no alternatives, use current
         if len(optimizer_scores) <= 1:
             return self.current_optimizer
         
-        # Выбираем лучший
+        # Select best
         best_optimizer = min(optimizer_scores.keys(), key=lambda x: optimizer_scores[x])
         
-        # Переключаемся только если значительное улучшение
+        # Switch only if significant improvement
         current_score = optimizer_scores.get(self.current_optimizer, float('inf'))
         best_score = optimizer_scores[best_optimizer]
         
@@ -736,7 +736,7 @@ class AdaptiveInnerLoopManager:
         return self.current_optimizer
     
     def get_performance_statistics(self) -> Dict[str, Any]:
-        """Возвращает статистики производительности"""
+        """Returns statistics performance"""
         stats = {}
         
         for opt_name, performance_list in self.performance_history.items():

@@ -2,8 +2,8 @@
 Few-Shot Evaluation System
 Comprehensive Meta-Learning Evaluation
 
-Система оценки few-shot learning для криптовалютных торговых стратегий
-с метриками производительности, статистическим анализом и визуализацией.
+System estimation few-shot learning for cryptocurrency trading strategies
+with metrics performance, statistical analysis and visualization.
 """
 
 import torch
@@ -32,22 +32,22 @@ from ..algorithms.matching_net import MatchingNetworks
 
 @dataclass
 class EvaluationConfig:
-    """Конфигурация для few-shot evaluation"""
+    """Configuration for few-shot evaluation"""
     
-    # Параметры эксперимента
-    num_episodes: int = 100  # Количество эпизодов для оценки
-    num_runs: int = 5  # Количество запусков для статистики
+    # Parameters experiment
+    num_episodes: int = 100  # Number episodes for estimation
+    num_runs: int = 5  # Number launches for statistics
     
-    # Few-shot настройки
+    # Few-shot settings
     support_shots: List[int] = field(default_factory=lambda: [1, 5, 10])  # K-shot
-    query_shots: int = 15  # Количество query примеров
+    query_shots: int = 15  # Number query examples
     num_ways: List[int] = field(default_factory=lambda: [3, 5])  # N-way
     
-    # Адаптация
+    # Adaptation
     adaptation_steps: List[int] = field(default_factory=lambda: [1, 5, 10])
     adaptation_lr: float = 0.01
     
-    # Метрики
+    # Metrics
     classification_metrics: List[str] = field(default_factory=lambda: [
         "accuracy", "precision", "recall", "f1", "auc"
     ])
@@ -55,21 +55,21 @@ class EvaluationConfig:
         "mse", "mae", "r2", "mape", "sharpe_ratio"
     ])
     
-    # Статистика
-    confidence_level: float = 0.95  # Доверительный интервал
-    significance_threshold: float = 0.05  # Уровень значимости
+    # Statistics
+    confidence_level: float = 0.95  # Confidence interval
+    significance_threshold: float = 0.05  # Level significance
     
-    # Crypto-specific метрики
+    # Crypto-specific metrics
     include_trading_metrics: bool = True
     trading_metrics: List[str] = field(default_factory=lambda: [
         "total_return", "max_drawdown", "win_rate", "profit_factor"
     ])
     
-    # Производительность
+    # Performance
     use_gpu: bool = True
     batch_evaluation: bool = True
     
-    # Визуализация
+    # Visualization
     save_plots: bool = True
     plot_dir: str = "./evaluation_plots"
     
@@ -78,7 +78,7 @@ class EvaluationConfig:
 
 class BaseEvaluator(ABC):
     """
-    Базовый класс для few-shot evaluators
+    Base class for few-shot evaluators
     
     Abstract Evaluation Framework
     - Consistent evaluation interface
@@ -94,14 +94,14 @@ class BaseEvaluator(ABC):
         self.config = config
         self.logger = logger or logging.getLogger(__name__)
         
-        # Результаты оценки
+        # Results estimation
         self.evaluation_results = defaultdict(list)
         self.episode_results = []
         
-        # Утилиты
+        # Utilities
         self.metrics_calculator = MetaLearningMetrics()
         
-        # Статистики
+        # Statistics
         self.timing_stats = defaultdict(list)
         
     @abstractmethod
@@ -113,7 +113,7 @@ class BaseEvaluator(ABC):
         num_ways: int,
         adaptation_steps: int
     ) -> Dict[str, float]:
-        """Оценивает один эпизод few-shot learning"""
+        """Evaluates one episode few-shot learning"""
         pass
     
     def run_evaluation(
@@ -123,38 +123,38 @@ class BaseEvaluator(ABC):
         model_name: str = "model"
     ) -> Dict[str, Any]:
         """
-        Запускает полную оценку few-shot performance
+        Launches full estimation few-shot performance
         
         Args:
-            model: Модель для оценки
-            task_generator: Генератор задач для оценки
-            model_name: Имя модели для логирования
+            model: Model for estimation
+            task_generator: Generator tasks for estimation
+            model_name: Name model for logging
             
         Returns:
-            Словарь с результатами оценки
+            Dictionary with results estimation
         """
         self.logger.info(f"Starting few-shot evaluation for {model_name}")
         
         all_results = defaultdict(lambda: defaultdict(list))
         
-        # Запускаем несколько прогонов для статистической надежности
+        # Run several runs for statistical reliability
         for run in range(self.config.num_runs):
             self.logger.info(f"Run {run + 1}/{self.config.num_runs}")
             
             run_results = self._evaluate_single_run(model, task_generator)
             
-            # Собираем результаты
+            # Collect results
             for setting, metrics in run_results.items():
                 for metric_name, value in metrics.items():
                     all_results[setting][metric_name].append(value)
         
-        # Агрегируем результаты по всем прогонам
+        # Aggregate results by all runs
         aggregated_results = self._aggregate_results(all_results)
         
-        # Статистический анализ
+        # Statistical analysis
         statistical_analysis = self._perform_statistical_analysis(all_results)
         
-        # Финальный отчет
+        # Final report
         final_report = {
             'model_name': model_name,
             'config': self.config,
@@ -171,38 +171,38 @@ class BaseEvaluator(ABC):
         model: nn.Module,
         task_generator: Callable
     ) -> Dict[str, Dict[str, float]]:
-        """Оценивает один прогон эксперимента"""
+        """Evaluates one run experiment"""
         
         run_results = defaultdict(lambda: defaultdict(list))
         
-        # Перебираем все комбинации параметров
+        # Iterate all combinations parameters
         for num_shots in self.config.support_shots:
             for num_ways in self.config.num_ways:
                 for adaptation_steps in self.config.adaptation_steps:
                     
                     setting_name = f"{num_shots}shot_{num_ways}way_{adaptation_steps}adapt"
                     
-                    # Оцениваем несколько эпизодов для данной настройки
+                    # Evaluate several episodes for given settings
                     for episode in range(self.config.num_episodes):
                         start_time = time.time()
                         
-                        # Генерируем задачу
+                        # Generate task
                         task_data = task_generator()
                         
-                        # Оцениваем эпизод
+                        # Evaluate episode
                         episode_metrics = self.evaluate_episode(
                             model, task_data, num_shots, num_ways, adaptation_steps
                         )
                         
-                        # Записываем время
+                        # Record time
                         episode_time = time.time() - start_time
                         self.timing_stats[setting_name].append(episode_time)
                         
-                        # Собираем метрики
+                        # Collect metrics
                         for metric_name, value in episode_metrics.items():
                             run_results[setting_name][metric_name].append(value)
         
-        # Усредняем по эпизодам
+        # Average by episodes
         averaged_results = {}
         for setting_name, metrics_dict in run_results.items():
             averaged_results[setting_name] = {}
@@ -215,7 +215,7 @@ class BaseEvaluator(ABC):
         self,
         all_results: Dict[str, Dict[str, List[float]]]
     ) -> Dict[str, Dict[str, Dict[str, float]]]:
-        """Агрегирует результаты по всем прогонам"""
+        """Aggregates results by all runs"""
         
         aggregated = {}
         
@@ -235,7 +235,7 @@ class BaseEvaluator(ABC):
                     'q75': float(np.percentile(values_array, 75))
                 }
                 
-                # Доверительный интервал
+                # Confidence interval
                 confidence_interval = self._compute_confidence_interval(
                     values_array, self.config.confidence_level
                 )
@@ -249,13 +249,13 @@ class BaseEvaluator(ABC):
         data: np.ndarray,
         confidence_level: float
     ) -> Tuple[float, float]:
-        """Вычисляет доверительный интервал"""
+        """Computes confidence interval"""
         from scipy import stats
         
         mean = np.mean(data)
         sem = stats.sem(data)  # Standard error of mean
         
-        # t-распределение для малых выборок
+        # t-distribution for small samples
         dof = len(data) - 1
         confidence_interval = stats.t.interval(
             confidence_level, dof, loc=mean, scale=sem
@@ -267,17 +267,17 @@ class BaseEvaluator(ABC):
         self,
         all_results: Dict[str, Dict[str, List[float]]]
     ) -> Dict[str, Any]:
-        """Выполняет статистический анализ результатов"""
+        """Executes statistical analysis results"""
         from scipy import stats
         
         analysis = {}
         
-        # Тест на нормальность распределения
+        # Test on normality distribution
         normality_tests = {}
         for setting_name, metrics_dict in all_results.items():
             normality_tests[setting_name] = {}
             for metric_name, values in metrics_dict.items():
-                if len(values) >= 3:  # Минимум для теста
+                if len(values) >= 3:  # Minimum for test
                     stat, p_value = stats.shapiro(values)
                     normality_tests[setting_name][metric_name] = {
                         'statistic': float(stat),
@@ -287,12 +287,12 @@ class BaseEvaluator(ABC):
         
         analysis['normality_tests'] = normality_tests
         
-        # Сравнение между настройками (если есть несколько)
+        # Comparison between settings (if exists several)
         if len(all_results) > 1:
             pairwise_comparisons = self._perform_pairwise_comparisons(all_results)
             analysis['pairwise_comparisons'] = pairwise_comparisons
         
-        # Effect size анализ
+        # Effect size analysis
         effect_sizes = self._compute_effect_sizes(all_results)
         analysis['effect_sizes'] = effect_sizes
         
@@ -302,7 +302,7 @@ class BaseEvaluator(ABC):
         self,
         all_results: Dict[str, Dict[str, List[float]]]
     ) -> Dict[str, Dict[str, Any]]:
-        """Выполняет попарные сравнения между настройками"""
+        """Executes pairwise comparison between settings"""
         from scipy import stats
         
         comparisons = {}
@@ -313,16 +313,16 @@ class BaseEvaluator(ABC):
                 comparison_key = f"{setting1}_vs_{setting2}"
                 comparisons[comparison_key] = {}
                 
-                # Сравниваем каждую метрику
+                # Compare each metric
                 for metric_name in all_results[setting1].keys():
                     if metric_name in all_results[setting2]:
                         values1 = all_results[setting1][metric_name]
                         values2 = all_results[setting2][metric_name]
                         
-                        # T-test (предполагаем нормальность)
+                        # T-test (assume normality)
                         t_stat, t_p = stats.ttest_ind(values1, values2)
                         
-                        # Mann-Whitney U test (непараметрический)
+                        # Mann-Whitney U test (nonparametric)
                         u_stat, u_p = stats.mannwhitneyu(values1, values2, alternative='two-sided')
                         
                         comparisons[comparison_key][metric_name] = {
@@ -337,7 +337,7 @@ class BaseEvaluator(ABC):
         self,
         all_results: Dict[str, Dict[str, List[float]]]
     ) -> Dict[str, Dict[str, float]]:
-        """Вычисляет размеры эффекта (Cohen's d)"""
+        """Computes dimensions effect (Cohen's d)"""
         
         effect_sizes = {}
         setting_names = list(all_results.keys())
@@ -366,7 +366,7 @@ class BaseEvaluator(ABC):
 
 class ClassificationEvaluator(BaseEvaluator):
     """
-    Evaluator для задач классификации
+    Evaluator for tasks classification
     
     Classification Evaluation
     - Standard classification metrics
@@ -382,39 +382,39 @@ class ClassificationEvaluator(BaseEvaluator):
         num_ways: int,
         adaptation_steps: int
     ) -> Dict[str, float]:
-        """Оценивает эпизод классификации"""
+        """Evaluates episode classification"""
         
         support_data = task_data['support_data'][:num_shots * num_ways]
         support_labels = task_data['support_labels'][:num_shots * num_ways]
         query_data = task_data['query_data']
         query_labels = task_data['query_labels']
         
-        # Адаптация модели (упрощенная версия)
+        # Adaptation model (simplified version)
         adapted_model = self._adapt_model(
             model, support_data, support_labels, adaptation_steps
         )
         
-        # Предсказания на query set
+        # Predictions on query set
         with torch.no_grad():
             adapted_model.eval()
             query_predictions = adapted_model(query_data)
             
             if hasattr(adapted_model, 'predict_classification'):
-                # Для специализированных моделей (например, ProtoNet)
+                # For specialized models (for example, ProtoNet)
                 predictions, probabilities = adapted_model.few_shot_predict(
                     support_data, support_labels, query_data
                 )
             else:
-                # Для обычных моделей
+                # For regular models
                 probabilities = torch.softmax(query_predictions, dim=1)
                 predictions = torch.argmax(probabilities, dim=1)
         
-        # Конвертируем в numpy для вычисления метрик
+        # Convert in numpy for computations metrics
         y_true = query_labels.cpu().numpy()
         y_pred = predictions.cpu().numpy()
         y_proba = probabilities.cpu().numpy()
         
-        # Базовые метрики
+        # Base metrics
         metrics = {}
         
         # Accuracy
@@ -442,7 +442,7 @@ class ClassificationEvaluator(BaseEvaluator):
         metrics['confusion_matrix_trace'] = float(np.trace(cm))
         metrics['confusion_matrix_off_diagonal_sum'] = float(np.sum(cm) - np.trace(cm))
         
-        # AUC (для многоклассовой задачи)
+        # AUC (for multi-class tasks)
         try:
             from sklearn.metrics import roc_auc_score
             if len(np.unique(y_true)) > 1 and y_proba.shape[1] > 1:
@@ -451,7 +451,7 @@ class ClassificationEvaluator(BaseEvaluator):
         except:
             metrics['auc'] = 0.0
         
-        # Энтропия предсказаний (мера уверенности)
+        # Entropy predictions (measure confidence)
         entropy = -np.sum(y_proba * np.log(y_proba + 1e-10), axis=1)
         metrics['prediction_entropy'] = float(np.mean(entropy))
         
@@ -464,13 +464,13 @@ class ClassificationEvaluator(BaseEvaluator):
         support_labels: torch.Tensor,
         adaptation_steps: int
     ) -> nn.Module:
-        """Адаптирует модель к support set"""
+        """Adapts model to support set"""
         
-        # Проверяем, есть ли у модели специальный метод адаптации
+        # Check, exists whether at model special method adaptation
         if hasattr(model, 'few_shot_adapt'):
             return model.few_shot_adapt(support_data, support_labels, adaptation_steps)
         
-        # Иначе используем стандартную fine-tuning процедуру
+        # Otherwise use standard fine-tuning procedure
         adapted_model = type(model)(
             **model.get_config() if hasattr(model, 'get_config') else {}
         )
@@ -491,7 +491,7 @@ class ClassificationEvaluator(BaseEvaluator):
 
 class RegressionEvaluator(BaseEvaluator):
     """
-    Evaluator для задач регрессии
+    Evaluator for tasks regression
     
     Regression Evaluation
     - Standard regression metrics
@@ -504,31 +504,31 @@ class RegressionEvaluator(BaseEvaluator):
         model: nn.Module,
         task_data: Dict[str, torch.Tensor],
         num_shots: int,
-        num_ways: int,  # Не используется в регрессии
+        num_ways: int,  # Not is used in regression
         adaptation_steps: int
     ) -> Dict[str, float]:
-        """Оценивает эпизод регрессии"""
+        """Evaluates episode regression"""
         
         support_data = task_data['support_data'][:num_shots]
         support_labels = task_data['support_labels'][:num_shots]
         query_data = task_data['query_data']
         query_labels = task_data['query_labels']
         
-        # Адаптация модели
+        # Adaptation model
         adapted_model = self._adapt_model(
             model, support_data, support_labels, adaptation_steps
         )
         
-        # Предсказания на query set
+        # Predictions on query set
         with torch.no_grad():
             adapted_model.eval()
             query_predictions = adapted_model(query_data)
         
-        # Конвертируем в numpy
+        # Convert in numpy
         y_true = query_labels.cpu().numpy()
         y_pred = query_predictions.cpu().numpy().flatten()
         
-        # Базовые метрики регрессии
+        # Base metrics regression
         metrics = {}
         
         # MSE, MAE, R²
@@ -557,7 +557,7 @@ class RegressionEvaluator(BaseEvaluator):
             trading_metrics = self._compute_trading_metrics(y_true, y_pred)
             metrics.update(trading_metrics)
         
-        # Статистики ошибок
+        # Statistics errors
         errors = y_true - y_pred
         metrics['error_mean'] = float(np.mean(errors))
         metrics['error_std'] = float(np.std(errors))
@@ -577,16 +577,16 @@ class RegressionEvaluator(BaseEvaluator):
         y_true: np.ndarray,
         y_pred: np.ndarray
     ) -> Dict[str, float]:
-        """Вычисляет метрики торговой стратегии"""
+        """Computes metrics trading strategies"""
         
         trading_metrics = {}
         
-        # Генерируем торговые сигналы
-        # Если предсказание > 0, то BUY, иначе SELL
+        # Generate trading signals
+        # If prediction > 0, then BUY, otherwise SELL
         signals = np.where(y_pred > 0, 1, -1)
         
-        # Доходности
-        returns = y_true * signals  # Предполагаем, что y_true - это доходности
+        # Profitability
+        returns = y_true * signals  # Assume, that y_true - this profitability
         
         # Total return
         total_return = np.sum(returns)
@@ -632,7 +632,7 @@ class RegressionEvaluator(BaseEvaluator):
         return trading_metrics
     
     def _compute_skewness(self, data: np.ndarray) -> float:
-        """Вычисляет коэффициент асимметрии"""
+        """Computes coefficient asymmetry"""
         mean = np.mean(data)
         std = np.std(data)
         if std > 0:
@@ -640,7 +640,7 @@ class RegressionEvaluator(BaseEvaluator):
         return 0.0
     
     def _compute_kurtosis(self, data: np.ndarray) -> float:
-        """Вычисляет коэффициент эксцесса"""
+        """Computes coefficient kurtosis"""
         mean = np.mean(data)
         std = np.std(data)
         if std > 0:
@@ -654,12 +654,12 @@ class RegressionEvaluator(BaseEvaluator):
         support_labels: torch.Tensor,
         adaptation_steps: int
     ) -> nn.Module:
-        """Адаптирует модель для регрессии"""
+        """Adapts model for regression"""
         
         if hasattr(model, 'few_shot_adapt'):
             return model.few_shot_adapt(support_data, support_labels, adaptation_steps)
         
-        # Стандартная fine-tuning процедура
+        # Standard fine-tuning procedure
         adapted_model = type(model)(
             **model.get_config() if hasattr(model, 'get_config') else {}
         )
@@ -680,7 +680,7 @@ class RegressionEvaluator(BaseEvaluator):
 
 class FewShotBenchmark:
     """
-    Комплексная система бенчмаркинга для few-shot learning
+    Comprehensive system benchmarking for few-shot learning
     
     Comprehensive Benchmarking System
     - Multi-algorithm comparison
@@ -696,7 +696,7 @@ class FewShotBenchmark:
         self.config = config
         self.logger = logger or logging.getLogger(__name__)
         
-        # Результаты бенчмарка
+        # Results benchmark
         self.benchmark_results = {}
         
     def run_benchmark(
@@ -706,26 +706,26 @@ class FewShotBenchmark:
         task_type: str = "classification"
     ) -> Dict[str, Any]:
         """
-        Запускает комплексный бенчмарк моделей
+        Launches comprehensive benchmark models
         
         Args:
-            models: Словарь моделей для сравнения
-            task_generator: Генератор задач
-            task_type: Тип задачи (classification/regression)
+            models: Dictionary models for comparison
+            task_generator: Generator tasks
+            task_type: Type tasks (classification/regression)
             
         Returns:
-            Результаты бенчмарка
+            Results benchmark
         """
         
         self.logger.info(f"Starting benchmark for {len(models)} models")
         
-        # Выбираем evaluator
+        # Select evaluator
         if task_type == "classification":
             evaluator = ClassificationEvaluator(self.config, self.logger)
         else:
             evaluator = RegressionEvaluator(self.config, self.logger)
         
-        # Оцениваем каждую модель
+        # Evaluate each model
         for model_name, model in models.items():
             self.logger.info(f"Evaluating model: {model_name}")
             
@@ -735,10 +735,10 @@ class FewShotBenchmark:
             
             self.benchmark_results[model_name] = model_results
         
-        # Сравнительный анализ
+        # Comparative analysis
         comparison_analysis = self._perform_comparison_analysis()
         
-        # Генерируем отчет
+        # Generate report
         final_report = {
             'benchmark_config': self.config,
             'task_type': task_type,
@@ -747,7 +747,7 @@ class FewShotBenchmark:
             'summary': self._generate_summary()
         }
         
-        # Сохраняем результаты
+        # Save results
         if self.config.save_plots:
             self._generate_visualizations(final_report)
         
@@ -755,20 +755,20 @@ class FewShotBenchmark:
         return final_report
     
     def _perform_comparison_analysis(self) -> Dict[str, Any]:
-        """Выполняет сравнительный анализ моделей"""
+        """Executes comparative analysis models"""
         
         if len(self.benchmark_results) < 2:
             return {"note": "Need at least 2 models for comparison"}
         
         analysis = {}
         
-        # Собираем все метрики
+        # Collect all metrics
         all_metrics = set()
         for model_results in self.benchmark_results.values():
             for setting_results in model_results['aggregated_results'].values():
                 all_metrics.update(setting_results.keys())
         
-        # Рейтинг моделей по каждой метрике
+        # Rating models by of each metric
         rankings = {}
         for metric in all_metrics:
             metric_rankings = self._rank_models_by_metric(metric)
@@ -777,35 +777,35 @@ class FewShotBenchmark:
         
         analysis['rankings'] = rankings
         
-        # Статистическая значимость различий
+        # Statistical significance differences
         significance_tests = self._test_statistical_significance()
         analysis['significance_tests'] = significance_tests
         
-        # Общий рейтинг
+        # Total rating
         overall_ranking = self._compute_overall_ranking(rankings)
         analysis['overall_ranking'] = overall_ranking
         
         return analysis
     
     def _rank_models_by_metric(self, metric_name: str) -> Dict[str, List[str]]:
-        """Ранжирует модели по конкретной метрике"""
+        """Ranks model by specific metric"""
         
         rankings = {}
         
-        # Собираем значения метрики для всех моделей и настроек
+        # Collect values metrics for all models and settings
         for setting in self.config.support_shots:
-            setting_key = f"{setting}shot"  # Упрощенный ключ
+            setting_key = f"{setting}shot"  # Simplified key
             
             model_scores = {}
             for model_name, results in self.benchmark_results.items():
-                # Ищем соответствующую настройку
+                # Search corresponding setting
                 for setting_name, setting_results in results['aggregated_results'].items():
                     if f"{setting}shot" in setting_name and metric_name in setting_results:
                         model_scores[model_name] = setting_results[metric_name]['mean']
                         break
             
             if model_scores:
-                # Сортируем (для accuracy, f1 - по убыванию, для loss - по возрастанию)
+                # Sort (for accuracy, f1 - by descending, for loss - by ascending)
                 reverse = metric_name in ['accuracy', 'f1', 'precision', 'recall', 'r2', 'correlation']
                 sorted_models = sorted(model_scores.items(), key=lambda x: x[1], reverse=reverse)
                 rankings[setting_key] = [model_name for model_name, _ in sorted_models]
@@ -813,17 +813,17 @@ class FewShotBenchmark:
         return rankings
     
     def _test_statistical_significance(self) -> Dict[str, Any]:
-        """Тестирует статистическую значимость различий"""
-        # Упрощенная версия - полная реализация потребует доступа к raw данным
+        """Tests statistical significance differences"""
+        # Simplified version - full implementation will require access to raw data
         return {"note": "Statistical significance testing requires access to raw episode results"}
     
     def _compute_overall_ranking(self, rankings: Dict[str, Dict[str, List[str]]]) -> List[str]:
-        """Вычисляет общий рейтинг моделей"""
+        """Computes total rating models"""
         
         if not rankings:
             return []
         
-        # Подсчитываем очки для каждой модели (1 место = n очков, 2 место = n-1 очков, etc.)
+        # Count points for of each model (1 place = n points, 2 place = n-1 points, etc.)
         model_scores = defaultdict(int)
         total_rankings = 0
         
@@ -834,7 +834,7 @@ class FewShotBenchmark:
                     points = len(setting_rankings) - i
                     model_scores[model_name] += points
         
-        # Нормализуем и сортируем
+        # Normalize and sort
         if total_rankings > 0:
             for model_name in model_scores:
                 model_scores[model_name] /= total_rankings
@@ -843,7 +843,7 @@ class FewShotBenchmark:
         return [model_name for model_name, _ in sorted_models]
     
     def _generate_summary(self) -> Dict[str, Any]:
-        """Генерирует сводную информацию"""
+        """Generates summary information"""
         
         summary = {
             'num_models_evaluated': len(self.benchmark_results),
@@ -851,7 +851,7 @@ class FewShotBenchmark:
             'configurations_tested': len(self.config.support_shots) * len(self.config.num_ways) * len(self.config.adaptation_steps)
         }
         
-        # Лучшие результаты по каждой основной метрике
+        # Best results by of each main metric
         key_metrics = ['accuracy', 'f1', 'mse', 'sharpe_ratio']
         best_results = {}
         
@@ -865,13 +865,13 @@ class FewShotBenchmark:
                     if metric in setting_results:
                         score = setting_results[metric]['mean']
                         
-                        # Определяем, лучше ли этот результат
+                        # Define, better whether this result
                         is_better = False
                         if best_score is None:
                             is_better = True
                         elif metric in ['accuracy', 'f1', 'r2', 'correlation', 'sharpe_ratio']:
                             is_better = score > best_score
-                        else:  # Для loss метрик
+                        else:  # For loss metrics
                             is_better = score < best_score
                         
                         if is_better:
@@ -891,33 +891,33 @@ class FewShotBenchmark:
         return summary
     
     def _generate_visualizations(self, report: Dict[str, Any]) -> None:
-        """Генерирует визуализации результатов"""
+        """Generates visualization results"""
         
         import os
         os.makedirs(self.config.plot_dir, exist_ok=True)
         
-        # Сравнение моделей по основным метрикам
+        # Comparison models by main metrics
         self._plot_model_comparison(report)
         
-        # Влияние количества shots на производительность
+        # Influence number shots on performance
         self._plot_shots_effect(report)
         
-        # Heatmap производительности
+        # Heatmap performance
         self._plot_performance_heatmap(report)
         
         self.logger.info(f"Visualizations saved to {self.config.plot_dir}")
     
     def _plot_model_comparison(self, report: Dict[str, Any]) -> None:
-        """Создает график сравнения моделей"""
-        # Placeholder для визуализации
+        """Creates chart comparison models"""
+        # Placeholder for visualization
         pass
     
     def _plot_shots_effect(self, report: Dict[str, Any]) -> None:
-        """Создает график влияния количества shots"""
-        # Placeholder для визуализации
+        """Creates chart influence number shots"""
+        # Placeholder for visualization
         pass
     
     def _plot_performance_heatmap(self, report: Dict[str, Any]) -> None:
-        """Создает heatmap производительности"""
-        # Placeholder для визуализации
+        """Creates heatmap performance"""
+        # Placeholder for visualization
         pass

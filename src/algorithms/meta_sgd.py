@@ -2,8 +2,8 @@
 Meta-SGD Implementation
 Learnable Learning Rates for Crypto Trading
 
-Реализация Meta-SGD алгоритма с обучаемыми learning rates для каждого параметра.
-Адаптивная оптимизация для криптовалютных торговых стратегий.
+Implementation Meta-SGD algorithm with trainable learning rates for of each parameter.
+Adaptive optimization for cryptocurrency trading strategies.
 """
 
 import torch
@@ -23,30 +23,30 @@ from ..utils.meta_utils import MetaLearningMetrics
 
 @dataclass
 class MetaSGDConfig:
-    """Конфигурация для Meta-SGD алгоритма"""
+    """Configuration for Meta-SGD algorithm"""
     
-    # Основные параметры
-    meta_lr: float = 0.001  # Мета-скорость обучения
-    num_inner_steps: int = 5  # Количество внутренних шагов
+    # Main parameters
+    meta_lr: float = 0.001  # Meta-speed training
+    num_inner_steps: int = 5  # Number inner steps
     
-    # Параметры задач
-    num_support: int = 5  # Размер support set
-    num_query: int = 15  # Размер query set
+    # Parameters tasks
+    num_support: int = 5  # Size support set
+    num_query: int = 15  # Size query set
     
-    # Инициализация learning rates
-    init_inner_lr: float = 0.01  # Начальные значения inner learning rates
-    lr_init_range: Tuple[float, float] = (0.001, 0.1)  # Диапазон инициализации
+    # Initialization learning rates
+    init_inner_lr: float = 0.01  # Initial values inner learning rates
+    lr_init_range: Tuple[float, float] = (0.001, 0.1)  # Range initialization
     
-    # Оптимизация
-    outer_lr: float = 0.001  # Скорость обучения для мета-параметров
-    grad_clip: Optional[float] = 1.0  # Обрезка градиентов
-    weight_decay: float = 0.0001  # L2 регуляризация
+    # Optimization
+    outer_lr: float = 0.001  # Speed training for meta-parameters
+    grad_clip: Optional[float] = 1.0  # Trimming gradients
+    weight_decay: float = 0.0001  # L2 regularization
     
-    # Регуляризация learning rates
-    lr_regularization: float = 0.001  # Регуляризация для learning rates
-    lr_bounds: Tuple[float, float] = (1e-5, 1.0)  # Границы для learning rates
+    # Regularization learning rates
+    lr_regularization: float = 0.001  # Regularization for learning rates
+    lr_bounds: Tuple[float, float] = (1e-5, 1.0)  # Boundaries for learning rates
     
-    # Мониторинг
+    # Monitoring
     log_interval: int = 10
     device: str = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -61,7 +61,7 @@ class MetaSGD:
     - Automatic hyperparameter tuning
     - Crypto market specialization
     
-    Meta-SGD обучает как веса модели, так и learning rates для быстрой адаптации.
+    Meta-SGD trains as weights model, so and learning rates for fast adaptation.
     """
     
     def __init__(
@@ -71,32 +71,32 @@ class MetaSGD:
         logger: Optional[logging.Logger] = None
     ):
         """
-        Инициализация Meta-SGD
+        Initialization Meta-SGD
         
         Args:
-            model: Базовая модель для мета-обучения
-            config: Конфигурация Meta-SGD
-            logger: Логгер для мониторинга
+            model: Base model for meta-training
+            config: Configuration Meta-SGD
+            logger: Logger for monitoring
         """
         self.model = model.to(config.device)
         self.config = config
         self.logger = logger or logging.getLogger(__name__)
         
-        # Инициализация обучаемых learning rates
+        # Initialization trainable learning rates
         self.inner_lrs = self._initialize_learning_rates()
         
-        # Мета-оптимизатор для модели и learning rates
+        # Meta-optimizer for model and learning rates
         self.meta_optimizer = optim.Adam(
             list(self.model.parameters()) + list(self.inner_lrs.values()),
             lr=config.outer_lr,
             weight_decay=config.weight_decay
         )
         
-        # Утилиты
+        # Utilities
         self.gradient_manager = GradientManager()
         self.metrics = MetaLearningMetrics()
         
-        # Состояние
+        # State
         self.global_step = 0
         self.best_meta_loss = float('inf')
         
@@ -105,16 +105,16 @@ class MetaSGD:
     
     def _initialize_learning_rates(self) -> OrderedDict:
         """
-        Инициализация обучаемых learning rates для каждого параметра модели
+        Initialization trainable learning rates for of each parameter model
         
         Returns:
-            OrderedDict с learning rates для каждого параметра
+            OrderedDict with learning rates for of each parameter
         """
         inner_lrs = OrderedDict()
         
         for name, param in self.model.named_parameters():
             if param.requires_grad:
-                # Инициализируем learning rate с той же формой что и параметр
+                # Initialize learning rate with that same form that and parameter
                 lr_param = torch.full_like(
                     param.data,
                     self.config.init_inner_lr,
@@ -122,12 +122,12 @@ class MetaSGD:
                     device=self.config.device
                 )
                 
-                # Добавляем небольшой шум для разнообразия
+                # Add small noise for diversity
                 with torch.no_grad():
                     noise = torch.randn_like(lr_param) * 0.001
                     lr_param.data.add_(noise)
                     
-                    # Обрезаем в допустимые границы
+                    # Trim in allowed boundaries
                     lr_param.data.clamp_(
                         self.config.lr_bounds[0],
                         self.config.lr_bounds[1]
@@ -145,16 +145,16 @@ class MetaSGD:
         create_graph: bool = True
     ) -> Tuple[OrderedDict, List[float], Dict[str, torch.Tensor]]:
         """
-        Внутренний цикл с обучаемыми learning rates
+        Inner loop with trainable learning rates
         
         Args:
-            support_data: Данные для обучения на задаче
-            support_labels: Метки для обучения
-            model_state: Текущее состояние модели
-            create_graph: Создавать ли граф вычислений
+            support_data: Data for training on task
+            support_labels: Labels for training
+            model_state: Current state model
+            create_graph: Create whether graph computations
             
         Returns:
-            Tuple из адаптированных параметров, losses и использованных learning rates
+            Tuple from adapted parameters, losses and used learning rates
         """
         adapted_params = OrderedDict()
         for name, param in model_state.items():
@@ -184,7 +184,7 @@ class MetaSGD:
             # Update parameters using learnable learning rates
             for (name, param), grad in zip(adapted_params.items(), grads):
                 if grad is not None and name in self.inner_lrs:
-                    # Применяем per-parameter learning rate
+                    # Apply per-parameter learning rate
                     current_lr = torch.clamp(
                         self.inner_lrs[name],
                         self.config.lr_bounds[0],
@@ -193,7 +193,7 @@ class MetaSGD:
                     
                     adapted_params[name] = param - current_lr * grad
                     
-                    # Сохраняем историю learning rates
+                    # Save history learning rates
                     lr_history[name].append(current_lr.detach().clone())
         
         return adapted_params, inner_losses, lr_history
@@ -203,11 +203,11 @@ class MetaSGD:
         data: torch.Tensor,
         params: OrderedDict
     ) -> torch.Tensor:
-        """Forward pass с заданными параметрами"""
-        # Создаем функциональную копию модели
+        """Forward pass with specified parameters"""
+        # Create functional copy model
         def fmodel(x):
-            # Простая реализация для демонстрации
-            # В реальности нужна более сложная функциональная замена
+            # Simple implementation for demonstration
+            # IN reality needed more complex functional replacement
             original_params = {}
             for name, param in self.model.named_parameters():
                 original_params[name] = param.data.clone()
@@ -217,7 +217,7 @@ class MetaSGD:
             try:
                 output = self.model(x)
             finally:
-                # Восстанавливаем параметры
+                # Restore parameters
                 for name, param in self.model.named_parameters():
                     param.data = original_params[name]
             
@@ -230,13 +230,13 @@ class MetaSGD:
         task_batch: List[Dict[str, torch.Tensor]]
     ) -> Dict[str, float]:
         """
-        Один шаг мета-обучения Meta-SGD
+        One step meta-training Meta-SGD
         
         Args:
-            task_batch: Batch задач для мета-обучения
+            task_batch: Batch tasks for meta-training
             
         Returns:
-            Словарь с метриками
+            Dictionary with metrics
         """
         self.meta_optimizer.zero_grad()
         
@@ -245,7 +245,7 @@ class MetaSGD:
         query_accuracies = []
         lr_stats = []
         
-        # Получаем текущие параметры модели
+        # Retrieve current parameters model
         model_state = OrderedDict(self.model.named_parameters())
         
         for task in task_batch:
@@ -254,7 +254,7 @@ class MetaSGD:
             query_data = task['query_data'].to(self.config.device)
             query_labels = task['query_labels'].to(self.config.device)
             
-            # Внутренний цикл с обучаемыми learning rates
+            # Inner loop with trainable learning rates
             adapted_params, inner_losses, lr_history = self.inner_loop(
                 support_data,
                 support_labels,
@@ -262,30 +262,30 @@ class MetaSGD:
                 create_graph=True
             )
             
-            # Query loss для внешнего цикла
+            # Query loss for outer loop
             query_predictions = self._forward_with_params(
                 query_data, adapted_params
             )
             meta_loss = nn.functional.mse_loss(query_predictions, query_labels)
             meta_losses.append(meta_loss)
             
-            # Метрики
+            # Metrics
             adaptation_losses.extend(inner_losses)
             query_accuracy = self._compute_accuracy(
                 query_predictions, query_labels
             )
             query_accuracies.append(query_accuracy)
             
-            # Статистика learning rates
+            # Statistics learning rates
             for name, lr_hist in lr_history.items():
                 if lr_hist:
                     avg_lr = torch.stack(lr_hist).mean()
                     lr_stats.append(avg_lr.item())
         
-        # Агрегируем мета-loss
+        # Aggregate meta-loss
         total_meta_loss = torch.stack(meta_losses).mean()
         
-        # Добавляем регуляризацию для learning rates
+        # Add regularization for learning rates
         lr_regularization = self._compute_lr_regularization()
         total_loss = total_meta_loss + lr_regularization
         
@@ -294,22 +294,22 @@ class MetaSGD:
         
         # Gradient clipping
         if self.config.grad_clip:
-            # Обрезка градиентов модели
+            # Trimming gradients model
             torch.nn.utils.clip_grad_norm_(
                 self.model.parameters(), self.config.grad_clip
             )
-            # Обрезка градиентов learning rates
+            # Trimming gradients learning rates
             torch.nn.utils.clip_grad_norm_(
                 self.inner_lrs.values(), self.config.grad_clip
             )
         
-        # Обновляем мета-параметры
+        # Update meta-parameters
         self.meta_optimizer.step()
         
-        # Ограничиваем learning rates в допустимых границах
+        # Limit learning rates in allowed boundaries
         self._clamp_learning_rates()
         
-        # Собираем метрики
+        # Collect metrics
         metrics = {
             'meta_loss': total_meta_loss.item(),
             'lr_regularization': lr_regularization.item(),
@@ -328,10 +328,10 @@ class MetaSGD:
     
     def _compute_lr_regularization(self) -> torch.Tensor:
         """
-        Вычисляет регуляризацию для learning rates
+        Computes regularization for learning rates
         
         Returns:
-            Tensor с значением регуляризации
+            Tensor with value regularization
         """
         if self.config.lr_regularization <= 0:
             return torch.tensor(0.0, device=self.config.device)
@@ -339,10 +339,10 @@ class MetaSGD:
         lr_penalty = torch.tensor(0.0, device=self.config.device)
         
         for lr_param in self.inner_lrs.values():
-            # L2 регуляризация
+            # L2 regularization
             lr_penalty += torch.sum(lr_param ** 2)
             
-            # Штраф за экстремальные значения
+            # Penalty for extreme values
             too_large = torch.sum(torch.relu(lr_param - 0.1) ** 2)
             too_small = torch.sum(torch.relu(0.001 - lr_param) ** 2)
             lr_penalty += too_large + too_small
@@ -350,7 +350,7 @@ class MetaSGD:
         return self.config.lr_regularization * lr_penalty
     
     def _clamp_learning_rates(self) -> None:
-        """Ограничивает learning rates в допустимых границах"""
+        """Limits learning rates in allowed boundaries"""
         with torch.no_grad():
             for lr_param in self.inner_lrs.values():
                 lr_param.data.clamp_(
@@ -362,7 +362,7 @@ class MetaSGD:
         self,
         validation_tasks: List[Dict[str, torch.Tensor]]
     ) -> Dict[str, float]:
-        """Валидация мета-модели"""
+        """Validation meta-model"""
         all_metrics = []
         
         with torch.no_grad():
@@ -372,7 +372,7 @@ class MetaSGD:
                 query_data = task['query_data'].to(self.config.device)
                 query_labels = task['query_labels'].to(self.config.device)
                 
-                # Адаптация без градиентов для внешнего цикла
+                # Adaptation without gradients for outer loop
                 adapted_params, adaptation_losses, _ = self.inner_loop(
                     support_data,
                     support_labels,
@@ -380,7 +380,7 @@ class MetaSGD:
                     create_graph=False
                 )
                 
-                # Валидация на query set
+                # Validation on query set
                 query_predictions = self._forward_with_params(
                     query_data, adapted_params
                 )
@@ -398,7 +398,7 @@ class MetaSGD:
                     'adaptation_loss': np.mean(adaptation_losses)
                 })
         
-        # Агрегируем метрики
+        # Aggregate metrics
         avg_metrics = {}
         for key in all_metrics[0].keys():
             avg_metrics[f'val_{key}'] = np.mean([m[key] for m in all_metrics])
@@ -412,29 +412,29 @@ class MetaSGD:
         num_adaptation_steps: Optional[int] = None
     ) -> nn.Module:
         """
-        Быстрая адаптация с использованием обученных learning rates
+        Fast adaptation with using trained learning rates
         
         Args:
-            support_data: Данные для адаптации
-            support_labels: Метки для адаптации
-            num_adaptation_steps: Количество шагов адаптации
+            support_data: Data for adaptation
+            support_labels: Labels for adaptation
+            num_adaptation_steps: Number steps adaptation
             
         Returns:
-            Адаптированная модель
+            Adapted model
         """
         if num_adaptation_steps is None:
             num_adaptation_steps = self.config.num_inner_steps
         
-        # Создаем копию модели
+        # Create copy model
         adapted_model = copy.deepcopy(self.model)
         
-        # Адаптация с обученными learning rates
+        # Adaptation with trained learning rates
         for step in range(num_adaptation_steps):
             # Forward pass
             predictions = adapted_model(support_data)
             loss = nn.functional.mse_loss(predictions, support_labels)
             
-            # Вычисляем градиенты
+            # Compute gradients
             grads = torch.autograd.grad(
                 loss,
                 adapted_model.parameters(),
@@ -442,7 +442,7 @@ class MetaSGD:
                 allow_unused=True
             )
             
-            # Обновляем параметры с обученными learning rates
+            # Update parameters with trained learning rates
             with torch.no_grad():
                 for (name, param), grad in zip(
                     adapted_model.named_parameters(), grads
@@ -461,7 +461,7 @@ class MetaSGD:
         return adapted_model
     
     def get_learning_rates_stats(self) -> Dict[str, Any]:
-        """Получает статистику обученных learning rates"""
+        """Gets statistics trained learning rates"""
         stats = {}
         
         with torch.no_grad():
@@ -475,7 +475,7 @@ class MetaSGD:
                 stats[f'{name}_min'] = lr_values.min().item()
                 stats[f'{name}_max'] = lr_values.max().item()
             
-            # Общая статистика
+            # Total statistics
             all_lrs = np.array(all_lrs)
             stats['global_lr_mean'] = np.mean(all_lrs)
             stats['global_lr_std'] = np.std(all_lrs)
@@ -490,14 +490,14 @@ class MetaSGD:
         labels: torch.Tensor,
         threshold: float = 0.1
     ) -> float:
-        """Вычисляет accuracy для регрессии"""
+        """Computes accuracy for regression"""
         with torch.no_grad():
             errors = torch.abs(predictions - labels)
             correct = (errors < threshold).float()
             return correct.mean().item()
     
     def save_checkpoint(self, filepath: str) -> None:
-        """Сохранение checkpoint модели"""
+        """Saving checkpoint model"""
         checkpoint = {
             'model_state_dict': self.model.state_dict(),
             'inner_lrs': {name: lr.data for name, lr in self.inner_lrs.items()},
@@ -510,12 +510,12 @@ class MetaSGD:
         self.logger.info(f"Meta-SGD checkpoint saved to {filepath}")
     
     def load_checkpoint(self, filepath: str) -> None:
-        """Загрузка checkpoint модели"""
+        """Loading checkpoint model"""
         checkpoint = torch.load(filepath, map_location=self.config.device)
         
         self.model.load_state_dict(checkpoint['model_state_dict'])
         
-        # Восстанавливаем learning rates
+        # Restore learning rates
         for name, lr_data in checkpoint['inner_lrs'].items():
             if name in self.inner_lrs:
                 self.inner_lrs[name].data = lr_data.to(self.config.device)
@@ -529,7 +529,7 @@ class MetaSGD:
 
 class MetaSGDTrainer:
     """
-    Trainer для Meta-SGD с enterprise patterns
+    Trainer for Meta-SGD with enterprise patterns
     
     Features:
     - Adaptive learning rate monitoring
@@ -560,7 +560,7 @@ class MetaSGDTrainer:
         save_dir: str = "./checkpoints",
         lr_analysis_interval: int = 50
     ) -> Dict[str, List[float]]:
-        """Основной цикл обучения Meta-SGD"""
+        """Main loop training Meta-SGD"""
         
         for epoch in range(num_epochs):
             # Training phase
@@ -592,7 +592,7 @@ class MetaSGDTrainer:
         return self._compile_metrics_history()
     
     def _train_epoch(self) -> Dict[str, float]:
-        """Обучение одной эпохи"""
+        """Training one epoch"""
         epoch_metrics = []
         
         for batch in tqdm(self.train_loader, desc="Meta-SGD Training"):
@@ -605,20 +605,20 @@ class MetaSGDTrainer:
         }
     
     def _log_metrics(self, epoch: int, metrics: Dict[str, float]) -> None:
-        """Логирование метрик"""
+        """Logging metrics"""
         self.logger.info(f"Meta-SGD Epoch {epoch}:")
         for key, value in metrics.items():
             self.logger.info(f"  {key}: {value:.4f}")
     
     def _log_lr_stats(self, epoch: int, lr_stats: Dict[str, Any]) -> None:
-        """Логирование статистики learning rates"""
+        """Logging statistics learning rates"""
         self.logger.info(f"Learning Rates Stats at Epoch {epoch}:")
         self.logger.info(f"  Global LR Mean: {lr_stats['global_lr_mean']:.6f}")
         self.logger.info(f"  Global LR Std: {lr_stats['global_lr_std']:.6f}")
         self.logger.info(f"  Global LR Range: [{lr_stats['global_lr_min']:.6f}, {lr_stats['global_lr_max']:.6f}]")
     
     def _compile_metrics_history(self) -> Dict[str, List[float]]:
-        """Компиляция истории метрик"""
+        """Compilation history metrics"""
         if not self.metrics_history:
             return {}
         

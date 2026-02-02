@@ -2,8 +2,8 @@
 Matching Networks Implementation
 Attention-Based Few-Shot Learning for Crypto Trading
 
-Реализация Matching Networks с механизмом внимания для быстрой адаптации
-к новым криптовалютным торговым парам и стратегиям.
+Implementation Matching Networks with mechanism attention for fast adaptation
+to new cryptocurrency trading pairs and strategies.
 """
 
 import torch
@@ -22,40 +22,40 @@ from ..utils.meta_utils import MetaLearningMetrics
 
 @dataclass
 class MatchingNetConfig:
-    """Конфигурация для Matching Networks"""
+    """Configuration for Matching Networks"""
     
-    # Архитектура
-    embedding_dim: int = 128  # Размерность embedding пространства
-    hidden_dims: List[int] = None  # Скрытые слои энкодера
+    # Architecture
+    embedding_dim: int = 128  # Dimensionality embedding space
+    hidden_dims: List[int] = None  # Hidden layers encoder
     
-    # Attention механизм
+    # Attention mechanism
     attention_type: str = "cosine"  # cosine, dot, mlp
-    attention_heads: int = 8  # Количество attention heads
-    attention_dropout: float = 0.1  # Dropout для attention
+    attention_heads: int = 8  # Number attention heads
+    attention_dropout: float = 0.1  # Dropout for attention
     
-    # LSTM для context encoding
-    lstm_layers: int = 1  # Количество LSTM слоев
+    # LSTM for context encoding
+    lstm_layers: int = 1  # Number LSTM layers
     lstm_bidirectional: bool = True  # Bidirectional LSTM
     
-    # Параметры обучения
-    learning_rate: float = 0.001  # Скорость обучения
-    num_support: int = 5  # Примеров на класс в support set
-    num_query: int = 15  # Примеров на класс в query set
-    num_classes: int = 5  # Количество классов в задаче
+    # Parameters training
+    learning_rate: float = 0.001  # Speed training
+    num_support: int = 5  # Examples on class in support set
+    num_query: int = 15  # Examples on class in query set
+    num_classes: int = 5  # Number classes in task
     
     # FCE (Full Context Embeddings)
-    use_fce: bool = True  # Использовать ли FCE
-    fce_steps: int = 3  # Количество шагов FCE
+    use_fce: bool = True  # Use whether FCE
+    fce_steps: int = 3  # Number steps FCE
     
-    # Оптимизация
-    weight_decay: float = 0.0001  # L2 регуляризация
-    grad_clip: Optional[float] = 1.0  # Обрезка градиентов
-    dropout_rate: float = 0.1  # Dropout для регуляризации
+    # Optimization
+    weight_decay: float = 0.0001  # L2 regularization
+    grad_clip: Optional[float] = 1.0  # Trimming gradients
+    dropout_rate: float = 0.1  # Dropout for regularization
     
-    # Температура для softmax
+    # Temperature for softmax
     temperature: float = 1.0
     
-    # Мониторинг
+    # Monitoring
     log_interval: int = 10
     device: str = "cuda" if torch.cuda.is_available() else "cpu"
     
@@ -66,7 +66,7 @@ class MatchingNetConfig:
 
 class AttentionModule(nn.Module):
     """
-    Attention механизм для Matching Networks
+    Attention mechanism for Matching Networks
     
     Multi-Head Attention
     - Scalable attention computation
@@ -108,7 +108,7 @@ class AttentionModule(nn.Module):
         support_labels: torch.Tensor
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """
-        Вычисляет attention между query и support examples
+        Computes attention between query and support examples
         
         Args:
             query: Query embeddings [n_query, embedding_dim]
@@ -116,7 +116,7 @@ class AttentionModule(nn.Module):
             support_labels: Support labels [n_support]
             
         Returns:
-            Attended features и attention weights
+            Attended features and attention weights
         """
         if self.attention_type == "cosine":
             return self._cosine_attention(query, support, support_labels)
@@ -214,7 +214,7 @@ class AttentionModule(nn.Module):
 
 class LSTMEncoder(nn.Module):
     """
-    LSTM энкодер для контекстного encoding в Matching Networks
+    LSTM encoder for contextual encoding in Matching Networks
     
     Bidirectional Sequence Encoding
     - Captures sequential dependencies
@@ -241,7 +241,7 @@ class LSTMEncoder(nn.Module):
         
     def forward(self, embeddings: torch.Tensor) -> torch.Tensor:
         """
-        Forward pass через LSTM
+        Forward pass through LSTM
         
         Args:
             embeddings: Input embeddings [batch_size, seq_len, embedding_dim]
@@ -255,7 +255,7 @@ class LSTMEncoder(nn.Module):
 
 class MatchingNetworkEncoder(nn.Module):
     """
-    Основной энкодер для Matching Networks
+    Main encoder for Matching Networks
     
     Deep Feature Encoder
     - Modular architecture
@@ -285,14 +285,14 @@ class MatchingNetworkEncoder(nn.Module):
         
         self.encoder = nn.Sequential(*layers)
         
-        # LSTM для контекстного encoding (если используется FCE)
+        # LSTM for contextual encoding (if is used FCE)
         if config.use_fce:
             self.lstm_encoder = LSTMEncoder(config)
         
         self._initialize_weights()
     
     def _initialize_weights(self):
-        """Инициализация весов"""
+        """Initialization weights"""
         for module in self.modules():
             if isinstance(module, nn.Linear):
                 nn.init.xavier_uniform_(module.weight)
@@ -313,11 +313,11 @@ class MatchingNetworkEncoder(nn.Module):
         Forward pass
         
         Args:
-            x: Input data [batch_size, input_dim] или [batch_size, seq_len, input_dim]
-            use_fce: Использовать ли Full Context Embeddings
+            x: Input data [batch_size, input_dim] or [batch_size, seq_len, input_dim]
+            use_fce: Use whether Full Context Embeddings
             
         Returns:
-            Embeddings [batch_size, embedding_dim] или [batch_size, seq_len, embedding_dim]
+            Embeddings [batch_size, embedding_dim] or [batch_size, seq_len, embedding_dim]
         """
         if x.dim() == 3 and use_fce:
             # FCE mode: process sequences
@@ -337,7 +337,7 @@ class MatchingNetworkEncoder(nn.Module):
 
 class MatchingNetworks:
     """
-    Matching Networks для few-shot learning
+    Matching Networks for few-shot learning
     
     Attention-Based Meta-Learning
     - Attention-based matching
@@ -353,12 +353,12 @@ class MatchingNetworks:
         logger: Optional[logging.Logger] = None
     ):
         """
-        Инициализация Matching Networks
+        Initialization Matching Networks
         
         Args:
-            input_dim: Размерность входных данных
-            config: Конфигурация модели
-            logger: Логгер для мониторинга
+            input_dim: Dimensionality input data
+            config: Configuration model
+            logger: Logger for monitoring
         """
         self.config = config
         self.logger = logger or logging.getLogger(__name__)
@@ -400,7 +400,7 @@ class MatchingNetworks:
         support_labels: torch.Tensor
     ) -> torch.Tensor:
         """
-        Full Context Embeddings (FCE) для улучшения support representations
+        Full Context Embeddings (FCE) for improvements support representations
         
         Args:
             support_data: Support examples [n_support, input_dim]
@@ -412,10 +412,10 @@ class MatchingNetworks:
         if not self.config.use_fce:
             return self.encoder(support_data)
         
-        # Начальные embeddings
+        # Initial embeddings
         current_embeddings = self.encoder(support_data)
         
-        # Итеративное улучшение через self-attention
+        # Iterative improvement through self-attention
         for step in range(self.config.fce_steps):
             # Self-attention over support set
             attended_features, _ = self.attention(
@@ -439,7 +439,7 @@ class MatchingNetworks:
         query_data: torch.Tensor
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """
-        Предсказание на основе attention-based matching
+        Prediction on basis attention-based matching
         
         Args:
             support_data: Support examples
@@ -447,9 +447,9 @@ class MatchingNetworks:
             query_data: Query examples
             
         Returns:
-            Logits и attention weights
+            Logits and attention weights
         """
-        # Получаем embeddings
+        # Retrieve embeddings
         query_embeddings = self.encoder(query_data)
         support_embeddings = self.full_context_embeddings(support_data, support_labels)
         
@@ -458,7 +458,7 @@ class MatchingNetworks:
             query_embeddings, support_embeddings, support_labels
         )
         
-        # Вычисляем вероятности классов через weighted voting
+        # Compute probability classes through weighted voting
         num_classes = len(torch.unique(support_labels))
         n_query = query_embeddings.size(0)
         n_support = support_embeddings.size(0)
@@ -468,7 +468,7 @@ class MatchingNetworks:
             support_labels.long(), num_classes
         ).float()  # [n_support, num_classes]
         
-        # Weighted voting через attention
+        # Weighted voting through attention
         logits = torch.mm(
             attention_weights, support_labels_one_hot
         )  # [n_query, num_classes]
@@ -480,13 +480,13 @@ class MatchingNetworks:
         task_batch: List[Dict[str, torch.Tensor]]
     ) -> Dict[str, float]:
         """
-        Один шаг обучения на batch задач
+        One step training on batch tasks
         
         Args:
-            task_batch: Batch задач для обучения
+            task_batch: Batch tasks for training
             
         Returns:
-            Словарь с метриками
+            Dictionary with metrics
         """
         self.optimizer.zero_grad()
         
@@ -500,7 +500,7 @@ class MatchingNetworks:
             query_data = task['query_data'].to(self.config.device)
             query_labels = task['query_labels'].to(self.config.device)
             
-            # Предсказания
+            # Predictions
             logits, attention_weights = self.predict(
                 support_data, support_labels, query_data
             )
@@ -515,7 +515,7 @@ class MatchingNetworks:
                 accuracy = (predictions == query_labels).float().mean()
                 total_accuracy += accuracy
         
-        # Усредняем по batch
+        # Average by batch
         avg_loss = total_loss / batch_size
         avg_accuracy = total_accuracy / batch_size
         
@@ -548,7 +548,7 @@ class MatchingNetworks:
         self,
         validation_tasks: List[Dict[str, torch.Tensor]]
     ) -> Dict[str, float]:
-        """Валидация модели"""
+        """Validation model"""
         self.encoder.eval()
         self.attention.eval()
         
@@ -562,12 +562,12 @@ class MatchingNetworks:
                 query_data = task['query_data'].to(self.config.device)
                 query_labels = task['query_labels'].to(self.config.device)
                 
-                # Предсказания
+                # Predictions
                 logits, _ = self.predict(
                     support_data, support_labels, query_data
                 )
                 
-                # Метрики
+                # Metrics
                 loss = F.cross_entropy(logits, query_labels.long())
                 predictions = torch.argmax(logits, dim=1)
                 accuracy = (predictions == query_labels).float().mean()
@@ -590,7 +590,7 @@ class MatchingNetworks:
         query_data: torch.Tensor
     ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         """
-        Few-shot предсказание с attention weights
+        Few-shot prediction with attention weights
         
         Args:
             support_data: Support examples
@@ -617,7 +617,7 @@ class MatchingNetworks:
         return predictions, probabilities, attention_weights
     
     def save_checkpoint(self, filepath: str) -> None:
-        """Сохранение checkpoint"""
+        """Saving checkpoint"""
         checkpoint = {
             'encoder_state_dict': self.encoder.state_dict(),
             'attention_state_dict': self.attention.state_dict(),
@@ -631,7 +631,7 @@ class MatchingNetworks:
         self.logger.info(f"MatchingNetworks checkpoint saved to {filepath}")
     
     def load_checkpoint(self, filepath: str) -> None:
-        """Загрузка checkpoint"""
+        """Loading checkpoint"""
         checkpoint = torch.load(filepath, map_location=self.config.device)
         
         self.encoder.load_state_dict(checkpoint['encoder_state_dict'])
@@ -646,7 +646,7 @@ class MatchingNetworks:
 
 class MatchingNetTrainer:
     """
-    Trainer для Matching Networks с enterprise patterns
+    Trainer for Matching Networks with enterprise patterns
     
     Features:
     - Attention visualization
@@ -676,7 +676,7 @@ class MatchingNetTrainer:
         save_dir: str = "./checkpoints",
         attention_analysis_interval: int = 50
     ) -> Dict[str, List[float]]:
-        """Основной цикл обучения"""
+        """Main loop training"""
         
         for epoch in range(num_epochs):
             # Training phase
@@ -708,7 +708,7 @@ class MatchingNetTrainer:
         return self._compile_metrics_history()
     
     def _train_epoch(self) -> Dict[str, float]:
-        """Обучение одной эпохи"""
+        """Training one epoch"""
         epoch_metrics = []
         
         for batch in tqdm(self.train_loader, desc="MatchingNet Training"):
@@ -721,18 +721,18 @@ class MatchingNetTrainer:
         }
     
     def _analyze_attention_patterns(self, epoch: int) -> None:
-        """Анализ паттернов attention"""
-        # Можно добавить визуализацию attention patterns
+        """Analysis patterns attention"""
+        # Possible add visualization attention patterns
         self.logger.info(f"Attention analysis at epoch {epoch} - placeholder for visualization")
     
     def _log_metrics(self, epoch: int, metrics: Dict[str, float]) -> None:
-        """Логирование метрик"""
+        """Logging metrics"""
         self.logger.info(f"MatchingNet Epoch {epoch}:")
         for key, value in metrics.items():
             self.logger.info(f"  {key}: {value:.4f}")
     
     def _compile_metrics_history(self) -> Dict[str, List[float]]:
-        """Компиляция истории метрик"""
+        """Compilation history metrics"""
         if not self.metrics_history:
             return {}
         

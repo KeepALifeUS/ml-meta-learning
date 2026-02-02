@@ -2,8 +2,8 @@
 Prototypical Networks Implementation
 Prototype-Based Few-Shot Learning for Crypto Trading
 
-Реализация Prototypical Networks для классификации и регрессии в контексте
-криптовалютных торговых стратегий. Основана на изучении прототипов классов.
+Implementation Prototypical Networks for classification and regression in context
+cryptocurrency trading strategies. Is based on studying prototypes classes.
 """
 
 import torch
@@ -22,33 +22,33 @@ from ..utils.meta_utils import MetaLearningMetrics
 
 @dataclass
 class ProtoNetConfig:
-    """Конфигурация для Prototypical Networks"""
+    """Configuration for Prototypical Networks"""
     
-    # Архитектура
-    embedding_dim: int = 128  # Размерность embedding пространства
-    hidden_dims: List[int] = None  # Скрытые слои энкодера
+    # Architecture
+    embedding_dim: int = 128  # Dimensionality embedding space
+    hidden_dims: List[int] = None  # Hidden layers encoder
     
-    # Параметры обучения
-    learning_rate: float = 0.001  # Скорость обучения
-    num_support: int = 5  # Примеров на класс в support set
-    num_query: int = 15  # Примеров на класс в query set
-    num_classes: int = 5  # Количество классов в задаче
+    # Parameters training
+    learning_rate: float = 0.001  # Speed training
+    num_support: int = 5  # Examples on class in support set
+    num_query: int = 15  # Examples on class in query set
+    num_classes: int = 5  # Number classes in task
     
-    # Расстояние и прототипы
+    # Distance and prototypes
     distance_metric: str = "euclidean"  # euclidean, cosine, manhattan
-    temperature: float = 1.0  # Температура для softmax
+    temperature: float = 1.0  # Temperature for softmax
     prototype_aggregation: str = "mean"  # mean, median, weighted
     
-    # Оптимизация
-    weight_decay: float = 0.0001  # L2 регуляризация
-    grad_clip: Optional[float] = 1.0  # Обрезка градиентов
-    dropout_rate: float = 0.1  # Dropout для регуляризации
+    # Optimization
+    weight_decay: float = 0.0001  # L2 regularization
+    grad_clip: Optional[float] = 1.0  # Trimming gradients
+    dropout_rate: float = 0.1  # Dropout for regularization
     
-    # Регрессия (для цен криптовалют)
-    regression_mode: bool = False  # Режим регрессии вместо классификации
+    # Regression (for prices cryptocurrencies)
+    regression_mode: bool = False  # Mode regression instead classification
     regression_loss: str = "mse"  # mse, mae, huber
     
-    # Мониторинг
+    # Monitoring
     log_interval: int = 10
     device: str = "cuda" if torch.cuda.is_available() else "cpu"
     
@@ -59,7 +59,7 @@ class ProtoNetConfig:
 
 class ProtoNetEncoder(nn.Module):
     """
-    Энкодер для Prototypical Networks
+    Encoder for Prototypical Networks
     
     Configurable Deep Encoder
     - Modular architecture
@@ -74,10 +74,10 @@ class ProtoNetEncoder(nn.Module):
         self.config = config
         layers = []
         
-        # Входной слой
+        # Input layer
         current_dim = input_dim
         
-        # Скрытые слои
+        # Hidden layers
         for hidden_dim in config.hidden_dims:
             layers.extend([
                 nn.Linear(current_dim, hidden_dim),
@@ -87,16 +87,16 @@ class ProtoNetEncoder(nn.Module):
             ])
             current_dim = hidden_dim
         
-        # Выходной embedding слой
+        # Output embedding layer
         layers.append(nn.Linear(current_dim, config.embedding_dim))
         
         self.encoder = nn.Sequential(*layers)
         
-        # Инициализация весов
+        # Initialization weights
         self._initialize_weights()
     
     def _initialize_weights(self):
-        """Инициализация весов модели"""
+        """Initialization weights model"""
         for module in self.modules():
             if isinstance(module, nn.Linear):
                 nn.init.xavier_uniform_(module.weight)
@@ -108,20 +108,20 @@ class ProtoNetEncoder(nn.Module):
     
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
-        Forward pass через энкодер
+        Forward pass through encoder
         
         Args:
-            x: Входные данные [batch_size, input_dim]
+            x: Input data [batch_size, input_dim]
             
         Returns:
-            Embedding векторы [batch_size, embedding_dim]
+            Embedding vectors [batch_size, embedding_dim]
         """
         return self.encoder(x)
 
 
 class PrototypicalNetworks:
     """
-    Prototypical Networks для few-shot learning
+    Prototypical Networks for few-shot learning
     
     Prototype-Based Meta-Learning
     - Efficient prototype computation
@@ -137,20 +137,20 @@ class PrototypicalNetworks:
         logger: Optional[logging.Logger] = None
     ):
         """
-        Инициализация Prototypical Networks
+        Initialization Prototypical Networks
         
         Args:
-            input_dim: Размерность входных данных
-            config: Конфигурация модели
-            logger: Логгер для мониторинга
+            input_dim: Dimensionality input data
+            config: Configuration model
+            logger: Logger for monitoring
         """
         self.config = config
         self.logger = logger or logging.getLogger(__name__)
         
-        # Энкодер
+        # Encoder
         self.encoder = ProtoNetEncoder(input_dim, config).to(config.device)
         
-        # Оптимизатор
+        # Optimizer
         self.optimizer = torch.optim.Adam(
             self.encoder.parameters(),
             lr=config.learning_rate,
@@ -165,11 +165,11 @@ class PrototypicalNetworks:
             patience=10
         )
         
-        # Утилиты
+        # Utilities
         self.gradient_manager = GradientManager()
         self.metrics = MetaLearningMetrics()
         
-        # Состояние
+        # State
         self.global_step = 0
         self.best_accuracy = 0.0
         
@@ -181,14 +181,14 @@ class PrototypicalNetworks:
         support_labels: torch.Tensor
     ) -> torch.Tensor:
         """
-        Вычисляет прототипы классов из support set
+        Computes prototypes classes from support set
         
         Args:
-            support_embeddings: Embeddings support примеров [n_support, embedding_dim]
-            support_labels: Метки support примеров [n_support]
+            support_embeddings: Embeddings support examples [n_support, embedding_dim]
+            support_labels: Labels support examples [n_support]
             
         Returns:
-            Прототипы классов [n_classes, embedding_dim]
+            Prototypes classes [n_classes, embedding_dim]
         """
         unique_labels = torch.unique(support_labels)
         n_classes = len(unique_labels)
@@ -200,17 +200,17 @@ class PrototypicalNetworks:
         )
         
         for idx, label in enumerate(unique_labels):
-            # Находим все примеры данного класса
+            # Find all examples given class
             class_mask = (support_labels == label)
             class_embeddings = support_embeddings[class_mask]
             
-            # Вычисляем прототип класса
+            # Compute prototype class
             if self.config.prototype_aggregation == "mean":
                 prototype = class_embeddings.mean(dim=0)
             elif self.config.prototype_aggregation == "median":
                 prototype = class_embeddings.median(dim=0)[0]
             elif self.config.prototype_aggregation == "weighted":
-                # Взвешенное среднее (можно добавить веса)
+                # Weighted average (possible add weights)
                 weights = torch.ones(len(class_embeddings)) / len(class_embeddings)
                 weights = weights.to(self.config.device)
                 prototype = (class_embeddings * weights.unsqueeze(1)).sum(dim=0)
@@ -227,14 +227,14 @@ class PrototypicalNetworks:
         prototypes: torch.Tensor
     ) -> torch.Tensor:
         """
-        Вычисляет расстояния между query embeddings и прототипами
+        Computes distances between query embeddings and prototypes
         
         Args:
             query_embeddings: Query embeddings [n_query, embedding_dim]
-            prototypes: Прототипы классов [n_classes, embedding_dim]
+            prototypes: Prototypes classes [n_classes, embedding_dim]
             
         Returns:
-            Расстояния [n_query, n_classes]
+            Distances [n_query, n_classes]
         """
         if self.config.distance_metric == "euclidean":
             # Euclidean distance
@@ -262,22 +262,22 @@ class PrototypicalNetworks:
         prototypes: torch.Tensor
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """
-        Предсказания для классификации
+        Predictions for classification
         
         Args:
             query_embeddings: Query embeddings
-            prototypes: Прототипы классов
+            prototypes: Prototypes classes
             
         Returns:
-            Tuple из logits и вероятностей
+            Tuple from logits and probabilities
         """
-        # Вычисляем расстояния
+        # Compute distances
         distances = self.compute_distances(query_embeddings, prototypes)
         
-        # Преобразуем расстояния в логиты (чем меньше расстояние, тем больше логит)
+        # Convert distances in logits (than less distance, the more logit)
         logits = -distances / self.config.temperature
         
-        # Вычисляем вероятности
+        # Compute probability
         probabilities = F.softmax(logits, dim=1)
         
         return logits, probabilities
@@ -289,7 +289,7 @@ class PrototypicalNetworks:
         support_targets: torch.Tensor
     ) -> torch.Tensor:
         """
-        Предсказания для регрессии на основе ближайших соседей
+        Predictions for regression on basis nearest neighbors
         
         Args:
             query_embeddings: Query embeddings
@@ -299,14 +299,14 @@ class PrototypicalNetworks:
         Returns:
             Predicted values
         """
-        # Вычисляем расстояния до всех support примеров
+        # Compute distances until all support examples
         distances = self.compute_distances(query_embeddings, support_embeddings)
         
-        # Веса на основе обратного расстояния
-        weights = 1.0 / (distances + 1e-8)  # Избегаем деления на ноль
+        # Weights on basis reverse distances
+        weights = 1.0 / (distances + 1e-8)  # Avoid division on zero
         weights = F.softmax(weights / self.config.temperature, dim=1)
         
-        # Взвешенное среднее target values
+        # Weighted average target values
         predictions = torch.mm(weights, support_targets.unsqueeze(1)).squeeze(1)
         
         return predictions
@@ -316,13 +316,13 @@ class PrototypicalNetworks:
         task_batch: List[Dict[str, torch.Tensor]]
     ) -> Dict[str, float]:
         """
-        Один шаг обучения на batch задач
+        One step training on batch tasks
         
         Args:
-            task_batch: Batch задач для обучения
+            task_batch: Batch tasks for training
             
         Returns:
-            Словарь с метриками
+            Dictionary with metrics
         """
         self.optimizer.zero_grad()
         
@@ -336,17 +336,17 @@ class PrototypicalNetworks:
             query_data = task['query_data'].to(self.config.device)
             query_labels = task['query_labels'].to(self.config.device)
             
-            # Получаем embeddings
+            # Retrieve embeddings
             support_embeddings = self.encoder(support_data)
             query_embeddings = self.encoder(query_data)
             
             if self.config.regression_mode:
-                # Режим регрессии
+                # Mode regression
                 predictions = self.predict_regression(
                     query_embeddings, support_embeddings, support_labels
                 )
                 
-                # Loss для регрессии
+                # Loss for regression
                 if self.config.regression_loss == "mse":
                     loss = F.mse_loss(predictions, query_labels)
                 elif self.config.regression_loss == "mae":
@@ -356,14 +356,14 @@ class PrototypicalNetworks:
                 else:
                     loss = F.mse_loss(predictions, query_labels)
                 
-                # Accuracy для регрессии (в пределах порога)
+                # Accuracy for regression (in within threshold)
                 with torch.no_grad():
                     threshold = 0.1 * torch.std(query_labels)
                     errors = torch.abs(predictions - query_labels)
                     accuracy = (errors < threshold).float().mean()
             
             else:
-                # Режим классификации
+                # Mode classification
                 prototypes = self.compute_prototypes(
                     support_embeddings, support_labels
                 )
@@ -383,7 +383,7 @@ class PrototypicalNetworks:
             total_loss += loss
             total_accuracy += accuracy
         
-        # Усредняем по batch
+        # Average by batch
         avg_loss = total_loss / batch_size
         avg_accuracy = total_accuracy / batch_size
         
@@ -415,7 +415,7 @@ class PrototypicalNetworks:
         self,
         validation_tasks: List[Dict[str, torch.Tensor]]
     ) -> Dict[str, float]:
-        """Валидация модели"""
+        """Validation model"""
         self.encoder.eval()
         
         all_losses = []
@@ -428,24 +428,24 @@ class PrototypicalNetworks:
                 query_data = task['query_data'].to(self.config.device)
                 query_labels = task['query_labels'].to(self.config.device)
                 
-                # Получаем embeddings
+                # Retrieve embeddings
                 support_embeddings = self.encoder(support_data)
                 query_embeddings = self.encoder(query_data)
                 
                 if self.config.regression_mode:
-                    # Регрессия
+                    # Regression
                     predictions = self.predict_regression(
                         query_embeddings, support_embeddings, support_labels
                     )
                     loss = F.mse_loss(predictions, query_labels)
                     
-                    # Accuracy для регрессии
+                    # Accuracy for regression
                     threshold = 0.1 * torch.std(query_labels)
                     errors = torch.abs(predictions - query_labels)
                     accuracy = (errors < threshold).float().mean()
                 
                 else:
-                    # Классификация
+                    # Classification
                     prototypes = self.compute_prototypes(
                         support_embeddings, support_labels
                     )
@@ -474,7 +474,7 @@ class PrototypicalNetworks:
         query_data: torch.Tensor
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """
-        Few-shot предсказание на новой задаче
+        Few-shot prediction on new task
         
         Args:
             support_data: Support examples
@@ -487,21 +487,21 @@ class PrototypicalNetworks:
         self.encoder.eval()
         
         with torch.no_grad():
-            # Получаем embeddings
+            # Retrieve embeddings
             support_embeddings = self.encoder(support_data)
             query_embeddings = self.encoder(query_data)
             
             if self.config.regression_mode:
-                # Регрессия
+                # Regression
                 predictions = self.predict_regression(
                     query_embeddings, support_embeddings, support_labels
                 )
-                # Для регрессии confidence можно вычислить как обратное расстояние
+                # For regression confidence possible compute as reverse distance
                 distances = self.compute_distances(query_embeddings, support_embeddings)
                 confidence = 1.0 / (distances.min(dim=1)[0] + 1e-8)
             
             else:
-                # Классификация
+                # Classification
                 prototypes = self.compute_prototypes(
                     support_embeddings, support_labels
                 )
@@ -515,7 +515,7 @@ class PrototypicalNetworks:
         return predictions, confidence
     
     def save_checkpoint(self, filepath: str) -> None:
-        """Сохранение checkpoint"""
+        """Saving checkpoint"""
         checkpoint = {
             'encoder_state_dict': self.encoder.state_dict(),
             'optimizer_state_dict': self.optimizer.state_dict(),
@@ -528,7 +528,7 @@ class PrototypicalNetworks:
         self.logger.info(f"ProtoNet checkpoint saved to {filepath}")
     
     def load_checkpoint(self, filepath: str) -> None:
-        """Загрузка checkpoint"""
+        """Loading checkpoint"""
         checkpoint = torch.load(filepath, map_location=self.config.device)
         
         self.encoder.load_state_dict(checkpoint['encoder_state_dict'])
@@ -542,7 +542,7 @@ class PrototypicalNetworks:
 
 class ProtoNetTrainer:
     """
-    Trainer для Prototypical Networks с enterprise patterns
+    Trainer for Prototypical Networks with enterprise patterns
     
     Features:
     - Prototype visualization
@@ -572,7 +572,7 @@ class ProtoNetTrainer:
         save_dir: str = "./checkpoints",
         early_stopping_patience: int = 20
     ) -> Dict[str, List[float]]:
-        """Основной цикл обучения"""
+        """Main loop training"""
         best_val_accuracy = 0.0
         patience_counter = 0
         
@@ -612,7 +612,7 @@ class ProtoNetTrainer:
         return self._compile_metrics_history()
     
     def _train_epoch(self) -> Dict[str, float]:
-        """Обучение одной эпохи"""
+        """Training one epoch"""
         epoch_metrics = []
         
         for batch in tqdm(self.train_loader, desc="ProtoNet Training"):
@@ -625,13 +625,13 @@ class ProtoNetTrainer:
         }
     
     def _log_metrics(self, epoch: int, metrics: Dict[str, float]) -> None:
-        """Логирование метрик"""
+        """Logging metrics"""
         self.logger.info(f"ProtoNet Epoch {epoch}:")
         for key, value in metrics.items():
             self.logger.info(f"  {key}: {value:.4f}")
     
     def _compile_metrics_history(self) -> Dict[str, List[float]]:
-        """Компиляция истории метрик"""
+        """Compilation history metrics"""
         if not self.metrics_history:
             return {}
         
