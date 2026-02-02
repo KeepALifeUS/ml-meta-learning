@@ -1,6 +1,6 @@
 """
 Meta-Learning Utilities
-Context7 Enterprise Pattern: Comprehensive Meta-Learning Support
+Comprehensive Meta-Learning Support
 
 Набор утилит для мета-обучения: метрики, визуализация, анализ данных,
 и вспомогательные функции для криптовалютного трейдинга.
@@ -28,7 +28,7 @@ class MetaLearningMetrics:
     """
     Система метрик для мета-обучения
     
-    Context7 Pattern: Comprehensive Metrics System
+    Comprehensive Metrics System
     - Task-specific metrics
     - Adaptation performance tracking
     - Cross-task generalization analysis
@@ -276,7 +276,7 @@ class DataAnalyzer:
     """
     Анализатор данных для мета-обучения
     
-    Context7 Pattern: Data Analysis Pipeline
+    Data Analysis Pipeline
     - Task difficulty estimation
     - Data quality assessment
     - Feature importance analysis
@@ -526,7 +526,7 @@ class Visualizer:
     """
     Система визуализации для мета-обучения
     
-    Context7 Pattern: Comprehensive Visualization
+    Comprehensive Visualization
     - Training progress visualization
     - Task analysis plots
     - Performance comparison charts
@@ -834,7 +834,7 @@ class ModelSerializer:
     """
     Сериализатор для сохранения и загрузки мета-моделей
     
-    Context7 Pattern: Model Persistence
+    Model Persistence
     - Model checkpointing
     - Configuration saving
     - Version management

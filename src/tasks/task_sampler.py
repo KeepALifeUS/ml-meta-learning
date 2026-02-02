@@ -1,6 +1,6 @@
 """
 Task Sampler System
-Context7 Enterprise Pattern: Efficient Task Sampling for Meta-Learning
+Efficient Task Sampling for Meta-Learning
 
 Система семплирования задач с оптимизацией производительности, кэшированием
 и интеллектуальной предварительной загрузкой для криптовалютного трейдинга.
@@ -63,7 +63,7 @@ class TaskCache:
     """
     Кэш задач с LRU eviction и persistent storage
     
-    Context7 Pattern: High-Performance Caching
+    High-Performance Caching
     - Memory-efficient storage
     - Persistent caching
     - Thread-safe operations
@@ -201,7 +201,7 @@ class TaskFilter:
     """
     Фильтр задач по различным критериям
     
-    Context7 Pattern: Configurable Task Filtering
+    Configurable Task Filtering
     - Multi-criteria filtering
     - Performance optimization
     - Extensible filter system
@@ -261,7 +261,7 @@ class TaskBalancer:
     """
     Балансировщик задач для равномерного распределения
     
-    Context7 Pattern: Intelligent Task Balancing
+    Intelligent Task Balancing
     - Multi-dimensional balancing
     - Adaptive rebalancing
     - Performance monitoring
@@ -388,7 +388,7 @@ class TaskSampler:
     """
     Основной Task Sampler с производительностью и интеллектуальностью
     
-    Context7 Pattern: High-Performance Task Sampling
+    High-Performance Task Sampling
     - Async/sync operation modes
     - Intelligent prefetching
     - Multi-threaded processing
@@ -644,7 +644,7 @@ class DataLoader:
     """
     DataLoader для мета-обучения с поддержкой различных sampling стратегий
     
-    Context7 Pattern: Flexible Data Loading
+    Flexible Data Loading
     - Multiple iteration strategies
     - Memory optimization
     - Performance monitoring

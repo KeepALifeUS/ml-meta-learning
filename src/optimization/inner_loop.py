@@ -1,6 +1,6 @@
 """
 Inner Loop Optimization
-Context7 Enterprise Pattern: Task-Specific Optimization for Meta-Learning
+Task-Specific Optimization for Meta-Learning
 
 Оптимизация внутреннего цикла для быстрой адаптации к новым задачам
 с различными стратегиями и алгоритмами оптимизации.
@@ -64,7 +64,7 @@ class BaseInnerLoopOptimizer(ABC):
     """
     Базовый класс для оптимизаторов внутреннего цикла
     
-    Context7 Pattern: Abstract Inner Loop Optimizer
+    Abstract Inner Loop Optimizer
     - Task-specific adaptation
     - Efficient parameter updates
     - Performance monitoring
@@ -193,7 +193,7 @@ class SGDInnerLoopOptimizer(BaseInnerLoopOptimizer):
     """
     SGD-based оптимизатор для внутреннего цикла
     
-    Context7 Pattern: SGD Inner Loop Optimization
+    SGD Inner Loop Optimization
     - Simple and efficient
     - Momentum support
     - Adaptive learning rate
@@ -308,7 +308,7 @@ class AdamInnerLoopOptimizer(BaseInnerLoopOptimizer):
     """
     Adam-based оптимизатор для внутреннего цикла
     
-    Context7 Pattern: Adam Inner Loop Optimization
+    Adam Inner Loop Optimization
     - Adaptive moment estimation
     - Better convergence properties
     - Suitable for noisy gradients
@@ -395,7 +395,7 @@ class MetaInitializedInnerLoopOptimizer(BaseInnerLoopOptimizer):
     """
     Оптимизатор с мета-инициализацией параметров
     
-    Context7 Pattern: Meta-Initialized Optimization
+    Meta-Initialized Optimization
     - Better initialization from meta-learning
     - Faster convergence
     - Task-specific parameter scaling
@@ -577,7 +577,7 @@ class InnerLoopOptimizerFactory:
     """
     Factory для создания оптимизаторов внутреннего цикла
     
-    Context7 Pattern: Inner Loop Optimizer Factory
+    Inner Loop Optimizer Factory
     - Centralized optimizer creation
     - Configuration-based instantiation
     - Support for different algorithms
@@ -650,7 +650,7 @@ class AdaptiveInnerLoopManager:
     """
     Менеджер для адаптивного выбора стратегии внутреннего цикла
     
-    Context7 Pattern: Adaptive Inner Loop Strategy
+    Adaptive Inner Loop Strategy
     - Performance-based optimizer selection
     - Dynamic strategy switching
     - Task-specific adaptation

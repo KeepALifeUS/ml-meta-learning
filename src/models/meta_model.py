@@ -1,6 +1,6 @@
 """
 Meta-Learning Model Architectures
-Context7 Enterprise Pattern: Flexible Model Architecture
+Flexible Model Architecture
 
 Базовые архитектуры моделей для мета-обучения с поддержкой
 различных типов задач и адаптивными компонентами.
@@ -45,7 +45,7 @@ class MetaModel(nn.Module):
     """
     Базовая мета-модель для криптовалютного трейдинга
     
-    Context7 Pattern: Adaptable Neural Architecture
+    Adaptable Neural Architecture
     - Flexible layer configuration
     - Meta-learnable parameters
     - Task-specific adaptation
@@ -328,7 +328,7 @@ class AdaptationModule(nn.Module):
     """
     Модуль адаптации для быстрой настройки к новым задачам
     
-    Context7 Pattern: Task-Specific Adaptation
+    Task-Specific Adaptation
     - Parameter-efficient adaptation
     - Task-specific layers
     - Gradient-based optimization
@@ -468,7 +468,7 @@ class MetaModelFactory:
     """
     Factory для создания мета-моделей
     
-    Context7 Pattern: Model Factory
+    Model Factory
     - Centralized model creation
     - Configuration-based instantiation
     - Pre-configured architectures

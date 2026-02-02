@@ -1,6 +1,6 @@
 """
 Reptile Algorithm Implementation
-Context7 Enterprise Pattern: First-Order Meta-Learning for Crypto Trading
+First-Order Meta-Learning for Crypto Trading
 
 Реализация алгоритма Reptile - упрощенной версии MAML без вторых производных.
 Особенно эффективен для быстрой адаптации к новым криптовалютным активам.
@@ -48,7 +48,7 @@ class Reptile:
     """
     Reptile Meta-Learning Algorithm
     
-    Context7 Pattern: Simplified Meta-Learning System
+    Simplified Meta-Learning System
     - First-order optimization only
     - Memory efficient
     - Fast convergence
@@ -412,7 +412,7 @@ class Reptile:
 
 class ReptileTrainer:
     """
-    Trainer для Reptile с Context7 patterns
+    Trainer для Reptile с enterprise patterns
     
     Features:
     - Efficient memory usage

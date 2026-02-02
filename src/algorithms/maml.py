@@ -1,6 +1,6 @@
 """
 MAML (Model-Agnostic Meta-Learning) Implementation
-Context7 Enterprise Pattern: Scalable Meta-Learning for Crypto Trading
+Scalable Meta-Learning for Crypto Trading
 
 Реализация алгоритма MAML для быстрой адаптации к новым криптовалютным рынкам.
 Основана на принципах gradient-based meta-learning с поддержкой высших производных.
@@ -53,7 +53,7 @@ class MAML:
     """
     Model-Agnostic Meta-Learning (MAML) Implementation
     
-    Context7 Pattern: Enterprise Meta-Learning System
+    Enterprise Meta-Learning System
     - Scalable gradient computation
     - Memory-efficient implementation
     - Production-ready monitoring
@@ -410,7 +410,7 @@ class MAML:
 
 class MAMLTrainer:
     """
-    Trainer class для MAML с Context7 enterprise patterns
+    Trainer class для MAML с enterprise patterns
     
     Features:
     - Automated checkpoint management

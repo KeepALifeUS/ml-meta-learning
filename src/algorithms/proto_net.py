@@ -1,6 +1,6 @@
 """
 Prototypical Networks Implementation
-Context7 Enterprise Pattern: Prototype-Based Few-Shot Learning for Crypto Trading
+Prototype-Based Few-Shot Learning for Crypto Trading
 
 Реализация Prototypical Networks для классификации и регрессии в контексте
 криптовалютных торговых стратегий. Основана на изучении прототипов классов.
@@ -61,7 +61,7 @@ class ProtoNetEncoder(nn.Module):
     """
     Энкодер для Prototypical Networks
     
-    Context7 Pattern: Configurable Deep Encoder
+    Configurable Deep Encoder
     - Modular architecture
     - Dropout regularization
     - Batch normalization
@@ -123,7 +123,7 @@ class PrototypicalNetworks:
     """
     Prototypical Networks для few-shot learning
     
-    Context7 Pattern: Prototype-Based Meta-Learning
+    Prototype-Based Meta-Learning
     - Efficient prototype computation
     - Multiple distance metrics
     - Support for both classification and regression
@@ -542,7 +542,7 @@ class PrototypicalNetworks:
 
 class ProtoNetTrainer:
     """
-    Trainer для Prototypical Networks с Context7 patterns
+    Trainer для Prototypical Networks с enterprise patterns
     
     Features:
     - Prototype visualization

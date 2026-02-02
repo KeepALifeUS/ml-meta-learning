@@ -1,6 +1,6 @@
 """
 Meta-SGD Implementation
-Context7 Enterprise Pattern: Learnable Learning Rates for Crypto Trading
+Learnable Learning Rates for Crypto Trading
 
 Реализация Meta-SGD алгоритма с обучаемыми learning rates для каждого параметра.
 Адаптивная оптимизация для криптовалютных торговых стратегий.
@@ -55,7 +55,7 @@ class MetaSGD:
     """
     Meta-SGD: Learning to Learn by Gradient Descent by Gradient Descent
     
-    Context7 Pattern: Adaptive Meta-Learning System
+    Adaptive Meta-Learning System
     - Learnable per-parameter learning rates
     - Second-order gradient optimization
     - Automatic hyperparameter tuning
@@ -529,7 +529,7 @@ class MetaSGD:
 
 class MetaSGDTrainer:
     """
-    Trainer для Meta-SGD с Context7 patterns
+    Trainer для Meta-SGD с enterprise patterns
     
     Features:
     - Adaptive learning rate monitoring

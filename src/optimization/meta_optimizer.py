@@ -1,6 +1,6 @@
 """
 Meta-Optimizer Framework
-Context7 Enterprise Pattern: Advanced Meta-Learning Optimization
+Advanced Meta-Learning Optimization
 
 Комплексная система мета-оптимизации для быстрой адаптации к новым криптовалютным
 рынкам с поддержкой различных алгоритмов и стратегий оптимизации.
@@ -69,7 +69,7 @@ class BaseMetaOptimizer(ABC):
     """
     Базовый класс для мета-оптимизаторов
     
-    Context7 Pattern: Abstract Meta-Optimizer
+    Abstract Meta-Optimizer
     - Pluggable optimization strategies
     - Consistent interface
     - Performance monitoring
@@ -202,7 +202,7 @@ class MAMLOptimizer(BaseMetaOptimizer):
     """
     MAML-специфичный оптимизатор
     
-    Context7 Pattern: MAML Optimization Strategy
+    MAML Optimization Strategy
     - Second-order gradient computation
     - Efficient memory management
     - Adaptive inner loop optimization
@@ -409,7 +409,7 @@ class ReptileOptimizer(BaseMetaOptimizer):
     """
     Reptile-специфичный оптимизатор
     
-    Context7 Pattern: First-Order Meta-Optimization
+    First-Order Meta-Optimization
     - Simple parameter interpolation
     - Memory efficient
     - Fast convergence
@@ -547,7 +547,7 @@ class AdaptiveMetaOptimizer(BaseMetaOptimizer):
     """
     Адаптивный мета-оптимизатор с автоматическим выбором стратегии
     
-    Context7 Pattern: Adaptive Optimization Strategy
+    Adaptive Optimization Strategy
     - Dynamic algorithm selection
     - Performance-based adaptation
     - Ensemble optimization
@@ -670,7 +670,7 @@ class MetaOptimizerFactory:
     """
     Factory для создания мета-оптимизаторов
     
-    Context7 Pattern: Optimizer Factory
+    Optimizer Factory
     - Centralized optimizer creation
     - Configuration-based instantiation
     - Easy extensibility

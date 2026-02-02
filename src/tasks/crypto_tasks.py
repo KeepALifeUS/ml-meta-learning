@@ -1,6 +1,6 @@
 """
 Crypto-Specific Meta-Learning Tasks
-Context7 Enterprise Pattern: Domain-Specialized Task Generation
+Domain-Specialized Task Generation
 
 Специализированные задачи для криптовалютного трейдинга с учетом особенностей
 криптовалютных рынков, волатильности и специфических паттернов.
@@ -97,7 +97,7 @@ class CryptoMarketSimulator:
     """
     Симулятор криптовалютного рынка для генерации реалистичных данных
     
-    Context7 Pattern: Market Simulation Engine
+    Market Simulation Engine
     - Realistic price movements
     - Multi-factor modeling
     - Various market regimes
@@ -337,7 +337,7 @@ class CryptoPriceDirectionTask:
     """
     Задача предсказания направления цены криптовалюты
     
-    Context7 Pattern: Classification Task Generator
+    Classification Task Generator
     - Multi-class price direction prediction
     - Various time horizons
     - Technical indicator integration
@@ -544,7 +544,7 @@ class CryptoPortfolioOptimizationTask:
     """
     Задача оптимизации криптовалютного портфеля
     
-    Context7 Pattern: Portfolio Optimization Task
+    Portfolio Optimization Task
     - Multi-asset portfolio construction
     - Risk-return optimization
     - Dynamic rebalancing
@@ -756,7 +756,7 @@ class CryptoTaskDistribution(BaseTaskDistribution):
     """
     Основное распределение криптовалютных задач
     
-    Context7 Pattern: Comprehensive Crypto Task Distribution
+    Comprehensive Crypto Task Distribution
     - Multiple task types
     - Market regime awareness
     - Realistic market simulation

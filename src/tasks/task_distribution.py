@@ -1,6 +1,6 @@
 """
 Task Distribution System
-Context7 Enterprise Pattern: Scalable Task Management for Meta-Learning
+Scalable Task Management for Meta-Learning
 
 Система распределения и управления задачами для мета-обучения в контексте
 криптовалютного трейдинга. Поддерживает различные типы задач и распределений.
@@ -77,7 +77,7 @@ class BaseTaskDistribution(ABC):
     """
     Базовый класс для распределения задач
     
-    Context7 Pattern: Abstract Task Distribution
+    Abstract Task Distribution
     - Pluggable task generation
     - Consistent interface
     - Extensible architecture
@@ -146,7 +146,7 @@ class CryptoTaskDistribution(BaseTaskDistribution):
     """
     Распределение задач для криптовалютного трейдинга
     
-    Context7 Pattern: Domain-Specific Task Distribution
+    Domain-Specific Task Distribution
     - Crypto market simulation
     - Realistic market conditions
     - Multi-asset scenarios
@@ -482,7 +482,7 @@ class CurriculumTaskDistribution(BaseTaskDistribution):
     """
     Распределение задач с curriculum learning
     
-    Context7 Pattern: Progressive Learning System
+    Progressive Learning System
     - Adaptive difficulty progression
     - Performance-based task selection
     - Multi-objective optimization
@@ -605,7 +605,7 @@ class MultiDomainTaskDistribution(BaseTaskDistribution):
     """
     Распределение задач из нескольких доменов
     
-    Context7 Pattern: Multi-Domain Meta-Learning
+    Multi-Domain Meta-Learning
     - Cross-domain transfer
     - Domain adaptation
     - Balanced domain sampling

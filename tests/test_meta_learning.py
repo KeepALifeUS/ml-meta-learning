@@ -1,6 +1,6 @@
 """
 Comprehensive Tests for Meta-Learning System
-Context7 Enterprise Pattern: Production-Ready Testing
+Production-Ready Testing
 
 Tests for всех компонентов meta-learning системы с проверкой
 корректности алгоритмов, производительности и интеграции.

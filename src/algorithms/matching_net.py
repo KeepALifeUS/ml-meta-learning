@@ -1,6 +1,6 @@
 """
 Matching Networks Implementation
-Context7 Enterprise Pattern: Attention-Based Few-Shot Learning for Crypto Trading
+Attention-Based Few-Shot Learning for Crypto Trading
 
 Реализация Matching Networks с механизмом внимания для быстрой адаптации
 к новым криптовалютным торговым парам и стратегиям.
@@ -68,7 +68,7 @@ class AttentionModule(nn.Module):
     """
     Attention механизм для Matching Networks
     
-    Context7 Pattern: Multi-Head Attention
+    Multi-Head Attention
     - Scalable attention computation
     - Multiple attention types
     - Efficient memory usage
@@ -216,7 +216,7 @@ class LSTMEncoder(nn.Module):
     """
     LSTM энкодер для контекстного encoding в Matching Networks
     
-    Context7 Pattern: Bidirectional Sequence Encoding
+    Bidirectional Sequence Encoding
     - Captures sequential dependencies
     - Bidirectional processing
     - Proper initialization
@@ -257,7 +257,7 @@ class MatchingNetworkEncoder(nn.Module):
     """
     Основной энкодер для Matching Networks
     
-    Context7 Pattern: Deep Feature Encoder
+    Deep Feature Encoder
     - Modular architecture
     - Proper regularization
     - Efficient computation
@@ -339,7 +339,7 @@ class MatchingNetworks:
     """
     Matching Networks для few-shot learning
     
-    Context7 Pattern: Attention-Based Meta-Learning
+    Attention-Based Meta-Learning
     - Attention-based matching
     - Full Context Embeddings (FCE)
     - Memory-efficient processing
@@ -646,7 +646,7 @@ class MatchingNetworks:
 
 class MatchingNetTrainer:
     """
-    Trainer для Matching Networks с Context7 patterns
+    Trainer для Matching Networks с enterprise patterns
     
     Features:
     - Attention visualization

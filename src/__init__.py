@@ -1,6 +1,6 @@
 """
 Meta-Learning System for Crypto Trading Bot v5.0
-Context7 Enterprise Pattern: Production-Ready Meta-Learning
+Production-Ready Meta-Learning
 
 Comprehensive meta-learning system для быстрой адаптации к новым
 криптовалютным рынкам и торговым стратегиям.
@@ -91,7 +91,7 @@ VERSION_INFO = {
     "algorithms": ["MAML", "Reptile", "Meta-SGD", "ProtoNet", "MatchingNet"],
     "task_types": ["classification", "regression", "portfolio_optimization"],
     "crypto_support": True,
-    "context7_patterns": True,
+    "_patterns": True,
     "production_ready": True
 }
 
@@ -134,8 +134,8 @@ def create_quick_setup():
 __license__ = "MIT"
 __copyright__ = "Copyright (c) 2025 ML-Framework Team"
 
-# Context7 compliance
-CONTEXT7_PATTERNS = [
+#  compliance
+ENTERPRISE_PATTERNS = [
     "Enterprise Meta-Learning Architecture",
     "Production-Ready Algorithm Implementation", 
     "Comprehensive Evaluation Framework",
@@ -148,4 +148,4 @@ CONTEXT7_PATTERNS = [
 
 print(f"🚀 Meta-Learning System v{__version__} loaded successfully!")
 print(f"📊 Available algorithms: {', '.join(VERSION_INFO['algorithms'])}")
-print(f"🔧 Context7 patterns: {len(CONTEXT7_PATTERNS)} implemented")
+print(f"🔧 enterprise patterns: {len(ENTERPRISE_PATTERNS)} implemented")

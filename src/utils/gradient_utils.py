@@ -1,6 +1,6 @@
 """
 Gradient Utilities for Meta-Learning
-Context7 Enterprise Pattern: Advanced Gradient Management
+Advanced Gradient Management
 
 Утилиты для работы с градиентами в мета-обучении: вычисление норм,
 модификация, анализ и оптимизация градиентных операций.
@@ -19,7 +19,7 @@ class GradientManager:
     """
     Менеджер для работы с градиентами в мета-обучении
     
-    Context7 Pattern: Gradient Management System
+    Gradient Management System
     - Efficient gradient computation
     - Memory optimization
     - Gradient analysis and debugging
@@ -413,7 +413,7 @@ class HigherOrderGradients:
     """
     Утилиты для работы с градиентами высших порядков
     
-    Context7 Pattern: Higher-Order Gradient Computation
+    Higher-Order Gradient Computation
     - Second-order gradient computation
     - Hessian approximations
     - Memory-efficient implementation
@@ -528,7 +528,7 @@ class GradientAccumulator:
     """
     Аккумулятор градиентов для мини-batch обучения
     
-    Context7 Pattern: Gradient Accumulation
+    Gradient Accumulation
     - Memory-efficient large batch simulation
     - Stable gradient computation
     - Flexible accumulation strategies
@@ -593,7 +593,7 @@ class GradientProfiler:
     """
     Профайлер для анализа производительности градиентных вычислений
     
-    Context7 Pattern: Performance Profiling
+    Performance Profiling
     - Gradient computation timing
     - Memory usage tracking
     - Performance optimization hints

@@ -1,6 +1,6 @@
 """
 Few-Shot Evaluation System
-Context7 Enterprise Pattern: Comprehensive Meta-Learning Evaluation
+Comprehensive Meta-Learning Evaluation
 
 Система оценки few-shot learning для криптовалютных торговых стратегий
 с метриками производительности, статистическим анализом и визуализацией.
@@ -80,7 +80,7 @@ class BaseEvaluator(ABC):
     """
     Базовый класс для few-shot evaluators
     
-    Context7 Pattern: Abstract Evaluation Framework
+    Abstract Evaluation Framework
     - Consistent evaluation interface
     - Extensible metric system
     - Statistical analysis support
@@ -368,7 +368,7 @@ class ClassificationEvaluator(BaseEvaluator):
     """
     Evaluator для задач классификации
     
-    Context7 Pattern: Classification Evaluation
+    Classification Evaluation
     - Standard classification metrics
     - Confusion matrix analysis
     - Class-wise performance
@@ -493,7 +493,7 @@ class RegressionEvaluator(BaseEvaluator):
     """
     Evaluator для задач регрессии
     
-    Context7 Pattern: Regression Evaluation
+    Regression Evaluation
     - Standard regression metrics
     - Crypto trading specific metrics
     - Risk-adjusted performance
@@ -682,7 +682,7 @@ class FewShotBenchmark:
     """
     Комплексная система бенчмаркинга для few-shot learning
     
-    Context7 Pattern: Comprehensive Benchmarking System
+    Comprehensive Benchmarking System
     - Multi-algorithm comparison
     - Statistical significance testing
     - Automated reporting
